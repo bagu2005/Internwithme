@@ -181,3 +181,5 @@ mobile/web-build/
 
 # Test files
 test-contact.js
+.vercel
+.env*.local

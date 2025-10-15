@@ -4,7 +4,7 @@
 
 ### Frontend Variables:
 ```bash
-VITE_API_URL=https://your-backend-url.vercel.app/api
+VITE_API_URL=https://server-3h393zhol-bagu2005s-projects.vercel.app/api
 VITE_GOOGLE_CLIENT_ID=89067507887-db174hug6dhocq6109ra6el9klgpocgf.apps.googleusercontent.com
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_51SIRkE5Dx64lk8lngh2tqC699BWoPhVq4eWGxx0fR5l4jsTvpwyjI1S2KjPeA12NWEN3WAIen1fjwQVfEWF23NCE00lHgrm114
 VITE_APP_NAME=InternWithMe
@@ -27,7 +27,7 @@ STRIPE_PUBLISHABLE_KEY=pk_live_51SIRkE5Dx64lk8lngh2tqC699BWoPhVq4eWGxx0fR5l4jsTv
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 PORT=5000
 NODE_ENV=production
-CORS_ORIGIN=https://your-frontend-url.vercel.app
+CORS_ORIGIN=https://internwithme-hedryp0ey-bagu2005s-projects.vercel.app
 MAX_FILE_SIZE=5242880
 UPLOAD_PATH=./uploads
 RATE_LIMIT_WINDOW_MS=900000

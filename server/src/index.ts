@@ -65,6 +65,15 @@ app.get('/health', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API routes
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/internships', internshipRoutes);
