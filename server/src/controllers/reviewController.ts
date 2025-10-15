@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { pool } from '../config/database';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
-import { Review } from '../../../shared/types';
+import { Review } from '../shared/types';
 
 export const createReview = async (
   req: AuthRequest,

@@ -3,7 +3,7 @@ import { pool } from '../config/database';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 import { subscriptionService } from '../services/subscriptionService';
-import { Application } from '../../../shared/types';
+import { Application } from '../shared/types';
 
 export const createApplication = async (
   req: AuthRequest,

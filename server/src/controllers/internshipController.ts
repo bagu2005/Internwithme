@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { pool } from '../config/database';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
-import { Internship, InternshipFilters, InternshipFormData, PaginatedResponse } from '../../../shared/types';
+import { Internship, InternshipFilters, InternshipFormData, PaginatedResponse } from '../shared/types';
 
 export const getInternships = async (
   req: Request<{}, any, {}, InternshipFilters>,

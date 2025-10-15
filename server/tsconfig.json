@@ -23,8 +23,7 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@/types/*": ["../shared/types/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { pool } from '../config/database';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
-import { RegisterRequest, LoginRequest, AuthResponse } from '../../../shared/types';
+import { RegisterRequest, LoginRequest, AuthResponse } from '../shared/types';
 import { generateOTP, sendOTPEmail, sendPasswordResetEmail } from '../services/emailService';
 
 const generateToken = (userId: string): string => {
