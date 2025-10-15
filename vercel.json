@@ -15,8 +15,5 @@
       "dest": "/client/$1"
     }
   ],
-  "env": {
-    "VITE_API_URL": "@api_url"
-  }
 }
 
