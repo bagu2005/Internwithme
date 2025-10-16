@@ -521,53 +521,51 @@ export default function InternshipsPage() {
                       )}
                     </div>
                     
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                       {!applications.has(job.id) && (
                         <button
                           onClick={() => {
                             setSelectedJob(job)
                             setShowApplicationPlanner(true)
                           }}
-                          className="btn-primary"
+                          className="flex-1 min-w-[120px] px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                         >
                           Apply Now
                         </button>
                       )}
-                      <div className="flex space-x-1">
-                        <button
-                          onClick={() => {
-                            const url = job.sourceUrl || 
-                              (job.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
-                               job.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
-                               job.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
-                               job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
-                               job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
-                               job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
-                               job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
-                               `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`)
-                            window.open(url, '_blank')
-                          }}
-                          className="btn-outline text-xs px-2 py-1"
-                        >
-                          Company
-                        </button>
-                        <button
-                          onClick={() => {
-                            const searchQuery = `${job.title} ${job.company} internship`
-                            const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchQuery)}&location=Singapore&f_TPR=r86400&f_JT=I&f_E=2`
-                            window.open(linkedinUrl, '_blank')
-                          }}
-                          className="btn-outline text-xs px-2 py-1"
-                        >
-                          LinkedIn
-                        </button>
-                      </div>
-                    <Link
+                      <button
+                        onClick={() => {
+                          const url = job.sourceUrl || 
+                            (job.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
+                             job.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
+                             job.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
+                             job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
+                             job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
+                             job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
+                             job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
+                             `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`)
+                          window.open(url, '_blank')
+                        }}
+                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        Company
+                      </button>
+                      <button
+                        onClick={() => {
+                          const searchQuery = `${job.title} ${job.company} internship`
+                          const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchQuery)}&location=Singapore&f_TPR=r86400&f_JT=I&f_E=2`
+                          window.open(linkedinUrl, '_blank')
+                        }}
+                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        LinkedIn
+                      </button>
+                      <Link
                         to={`/jobs/${job.id}`}
-                      className="btn-outline"
-                    >
-                      View Details
-                    </Link>
+                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center"
+                      >
+                        View Details
+                      </Link>
                     </div>
                   </div>
                 </div>

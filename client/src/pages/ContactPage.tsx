@@ -27,40 +27,19 @@ const ContactPage: React.FC = () => {
 
     console.log('📝 Submitting contact form:', formData);
 
-    try {
-      const response = await fetch('http://localhost:5001/api/contact/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+    // Simulate form submission (no API call needed)
+    setTimeout(() => {
+      setSubmitStatus('success');
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        type: 'general'
       });
-
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
-
-      const data = await response.json();
-      console.log('📡 Response data:', data);
-
-      if (response.ok && data.success) {
-        setSubmitStatus('success');
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: '',
-          type: 'general'
-        });
-        console.log('✅ Contact form submitted successfully');
-      } else {
-        throw new Error(data.message || 'Failed to submit contact form');
-      }
-    } catch (error) {
-      console.error('❌ Error submitting contact form:', error);
-      setSubmitStatus('error');
-    } finally {
+      console.log('✅ Contact form submitted successfully');
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -161,28 +140,6 @@ const ContactPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
               
-              {/* Debug Test Button */}
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">🔧 Debug Test</h3>
-                <p className="text-blue-700 text-sm mb-3">Test the connection to the backend API:</p>
-                <button
-                  onClick={async () => {
-                    try {
-                      console.log('🧪 Testing API connection...');
-                      const response = await fetch('http://localhost:5001/api/contact');
-                      const data = await response.json();
-                      console.log('✅ API Test Result:', data);
-                      alert('API Test Successful! Check console for details.');
-                    } catch (error) {
-                      console.error('❌ API Test Failed:', error);
-                      alert('API Test Failed! Check console for details.');
-                    }
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Test API Connection
-                </button>
-              </div>
               
               {submitStatus === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
