@@ -306,6 +306,24 @@ const initializeTables = async (): Promise<void> => {
       // Don't fail the entire startup if migration fails
     }
     
+    // Add some sample job data if job_postings table is empty
+    try {
+      const jobCount = await client.query('SELECT COUNT(*) FROM job_postings');
+      if (parseInt(jobCount.rows[0].count) === 0) {
+        console.log('📊 Adding sample job data...');
+        await client.query(`
+          INSERT INTO job_postings (title, company, location, description, requirements, benefits, salary, type, remote, source, source_url, posted_date, application_deadline)
+          VALUES 
+            ('Software Engineering Intern', 'TechCorp', 'San Francisco, CA', 'Join our engineering team for a summer internship...', ARRAY['Computer Science student', 'Python/JavaScript experience'], ARRAY['Mentorship', 'Free lunch', 'Flexible hours'], '$25-30/hour', 'internship', false, 'Indeed', 'https://indeed.com/viewjob?jk=123', NOW(), NOW() + INTERVAL '30 days'),
+            ('Marketing Intern', 'StartupXYZ', 'Remote', 'Help us grow our brand and reach new customers...', ARRAY['Marketing or Business student', 'Social media experience'], ARRAY['Remote work', 'Learning opportunities'], '$20-25/hour', 'internship', true, 'LinkedIn', 'https://linkedin.com/jobs/view/124', NOW(), NOW() + INTERVAL '45 days'),
+            ('Data Science Intern', 'DataCorp', 'New York, NY', 'Work with our data team to analyze user behavior...', ARRAY['Statistics/Data Science student', 'Python/R experience'], ARRAY['Real-world projects', 'Data science mentorship'], '$28-35/hour', 'internship', false, 'Glassdoor', 'https://glassdoor.com/job-listing/125', NOW(), NOW() + INTERVAL '20 days')
+        `);
+        console.log('✅ Sample job data added');
+      }
+    } catch (sampleError) {
+      console.log('⚠️  Failed to add sample data:', sampleError);
+    }
+    
   } catch (error) {
     console.error('❌ Error initializing database tables:', error);
     throw error;
