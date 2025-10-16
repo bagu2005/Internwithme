@@ -3497,9 +3497,9 @@ class JobScrapingService {
     } else if (company.includes('Remote') || company.includes('remote')) {
       return remoteUrls[Math.floor(Math.random() * remoteUrls.length)]
     } else {
-      // Better fallback - use Google search for job postings
-      const searchQuery = `${title} ${company} internship singapore`
-      return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`
+      // Fallback - try to construct company career page URL
+      const companySlug = company.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')
+      return `https://${companySlug}.com/careers`
     }
   }
 }

@@ -289,8 +289,20 @@ export default function ApplicationPlanner({ job, isOpen, onClose, onApply }: Ap
                      job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
                      job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
                      job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
+                     job.company.includes('OCBC') ? 'https://www.ocbc.com/group/careers/' :
+                     job.company.includes('UOB') ? 'https://www.uobgroup.com/uobgroup/careers/' :
+                     job.company.includes('GovTech') ? 'https://www.tech.gov.sg/careers/' :
+                     job.company.includes('Enterprise') ? 'https://www.enterprisesg.gov.sg/careers' :
+                     job.company.includes('A*STAR') ? 'https://www.a-star.edu.sg/careers' :
+                     job.company.includes('Carousell') ? 'https://careers.carousell.com/' :
+                     job.company.includes('99.co') ? 'https://99.co/singapore/careers' :
+                     job.company.includes('Ninja Van') ? 'https://www.ninjavan.co/en-sg/careers' :
+                     job.company.includes('McKinsey') ? 'https://www.mckinsey.com/careers/search-jobs' :
+                     job.company.includes('PwC') ? 'https://www.pwc.com/sg/en/careers.html' :
+                     job.company.includes('Allen') ? 'https://www.allenandgledhill.com/careers/' :
+                     job.company.includes('National University Hospital') ? 'https://www.nuh.com.sg/careers/' :
                      job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
-                     `https://www.google.com/search?q=${encodeURIComponent(`${job.title} ${job.company} internship singapore`)}`)
+                     `https://${job.company.toLowerCase().replace(/\s+/g, '')}.com/careers`)
                   window.open(url, '_blank')
                 }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
