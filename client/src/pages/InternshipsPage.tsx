@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw } from 'lucide-react'
+import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { jobService } from '../services/supabase'
+import { realTimeService } from '../services/realTimeService'
 import { toast } from 'react-hot-toast'
 
 // Job interface
@@ -29,10 +30,57 @@ export default function InternshipsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedType, setSelectedType] = useState('')
   const [showRemoteOnly, setShowRemoteOnly] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
+  const [scrapingStatus, setScrapingStatus] = useState('')
 
-  // Fetch jobs and stats on component mount
+  // Connect to real-time service and fetch jobs
   useEffect(() => {
-    const fetchData = async () => {
+    const initializeRealTime = () => {
+      try {
+        // Connect to real-time service
+        const socket = realTimeService.connect()
+        
+        // Check connection status
+        setIsConnected(realTimeService.isConnected())
+        
+        // Set up user preferences for job scraping
+        const userPreferences = {
+          industry: 'software engineering',
+          skills: ['javascript', 'python', 'react', 'node.js'],
+          location: '',
+          experience: 'internship'
+        }
+        
+        // Request jobs with real-time updates
+        realTimeService.requestJobs(userPreferences, (jobs) => {
+          setJobs(jobs || [])
+          setLoading(false)
+        })
+        
+        // Listen for new jobs
+        realTimeService.onNewJobs((data) => {
+          toast.success(`${data.count} new jobs found!`)
+        })
+        
+        // Listen for scraping status updates
+        socket.on('scraping_status', (status) => {
+          setScrapingStatus(status.message)
+          if (status.status === 'completed') {
+            setTimeout(() => setScrapingStatus(''), 3000)
+          }
+        })
+        
+        // Get stats
+        jobService.getJobStats().then(setStats)
+        
+      } catch (error) {
+        console.error('Failed to initialize real-time service:', error)
+        // Fallback to regular API
+        fetchDataFallback()
+      }
+    }
+    
+    const fetchDataFallback = async () => {
       try {
         setLoading(true)
         const [jobs, jobStats] = await Promise.all([
@@ -43,14 +91,18 @@ export default function InternshipsPage() {
         setStats(jobStats)
       } catch (error) {
         console.error('Failed to fetch data:', error)
-        // Fallback to empty array if API fails
         setJobs([])
       } finally {
         setLoading(false)
       }
     }
 
-    fetchData()
+    initializeRealTime()
+    
+    // Cleanup on unmount
+    return () => {
+      realTimeService.disconnect()
+    }
   }, [])
 
 
@@ -71,12 +123,32 @@ export default function InternshipsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Find Your Perfect Job
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Find Your Perfect Job
+            </h1>
+            <div className="flex items-center space-x-2">
+              {isConnected ? (
+                <div className="flex items-center text-green-600">
+                  <Wifi className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Live Updates</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-gray-500">
+                  <WifiOff className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Offline Mode</span>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-lg text-gray-600">
             Discover opportunities from top companies around the world
           </p>
+          {scrapingStatus && (
+            <div className="mt-2 text-sm text-blue-600">
+              {scrapingStatus}
+            </div>
+          )}
         </div>
 
         {/* Search and Filters */}
