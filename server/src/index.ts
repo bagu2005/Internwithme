@@ -76,6 +76,47 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Test endpoint with sample data (no database required)
+app.get('/api/test', (req, res) => {
+  res.status(200).json({
+    message: 'Test endpoint working',
+    sampleJobs: [
+      {
+        id: '1',
+        title: 'Software Engineering Intern',
+        company: 'TechCorp',
+        location: 'San Francisco, CA',
+        description: 'Join our engineering team for a summer internship...',
+        requirements: ['Computer Science student', 'Python/JavaScript experience'],
+        benefits: ['Mentorship', 'Free lunch', 'Flexible hours'],
+        salary: '$25-30/hour',
+        type: 'internship',
+        remote: false,
+        source: 'Indeed',
+        sourceUrl: 'https://indeed.com/viewjob?jk=123',
+        postedDate: new Date().toISOString(),
+        applicationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: '2',
+        title: 'Marketing Intern',
+        company: 'StartupXYZ',
+        location: 'Remote',
+        description: 'Help us grow our brand and reach new customers...',
+        requirements: ['Marketing or Business student', 'Social media experience'],
+        benefits: ['Remote work', 'Learning opportunities'],
+        salary: '$20-25/hour',
+        type: 'internship',
+        remote: true,
+        source: 'LinkedIn',
+        sourceUrl: 'https://linkedin.com/jobs/view/124',
+        postedDate: new Date().toISOString(),
+        applicationDeadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ]
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
@@ -95,21 +136,25 @@ app.use(errorHandler);
 // Start server
 const startServer = async () => {
   try {
-    // Try to connect to database, but don't fail if it's not available
-    try {
-      await connectDatabase();
-      console.log('✅ Database connected');
-    } catch (dbError) {
-      console.log('⚠️  Database not available - running in demo mode');
-      console.log('   To enable full functionality, start PostgreSQL');
-    }
-
+    // Start server immediately without waiting for database
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Frontend: http://localhost:3001`);
     });
+
+    // Try to connect to database in background (non-blocking)
+    setTimeout(async () => {
+      try {
+        await connectDatabase();
+        console.log('✅ Database connected');
+      } catch (dbError) {
+        console.log('⚠️  Database not available - running in demo mode');
+        console.log('   To enable full functionality, start PostgreSQL');
+      }
+    }, 1000);
+
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
