@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Preferences Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .section h3 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .preview {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .job-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .job-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        .company {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .location {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .salary {
+            color: #059669;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Job Preferences Test</h1>
+        
+        <div class="section">
+            <h3>Set Your Job Preferences</h3>
+            <div class="form-group">
+                <label for="major">Major/Field of Study:</label>
+                <select id="major">
+                    <option value="">Select your major</option>
+                    <option value="computer-science">Computer Science</option>
+                    <option value="design">Design/Art</option>
+                    <option value="business">Business/Marketing</option>
+                    <option value="finance">Finance/Economics</option>
+                    <option value="journalism">Journalism/Communications</option>
+                    <option value="data-science">Data Science/Analytics</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="industry">Preferred Industry:</label>
+                <select id="industry">
+                    <option value="">Select preferred industry</option>
+                    <option value="technology">Technology</option>
+                    <option value="design">Design/Creative</option>
+                    <option value="marketing">Marketing/Advertising</option>
+                    <option value="finance">Finance/Banking</option>
+                    <option value="media">Media/Entertainment</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="education">Education</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="skills">Job-Related Skills:</label>
+                <input type="text" id="skills" placeholder="e.g., JavaScript, Python, Design, Marketing">
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Preferred Location:</label>
+                <input type="text" id="location" placeholder="e.g., San Francisco, Remote, New York">
+            </div>
+            
+            <button onclick="updatePreferences()">Update Preferences</button>
+            <button onclick="testJobMatching()">Test Job Matching</button>
+        </div>
+        
+        <div class="section">
+            <h3>Current Preferences</h3>
+            <div class="preview" id="preferences-preview">
+                No preferences set yet. Fill out the form above and click "Update Preferences".
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>Personalized Job Recommendations</h3>
+            <div id="job-recommendations">
+                Click "Test Job Matching" to see personalized job recommendations based on your preferences.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPreferences = {};
+        
+        function updatePreferences() {
+            currentPreferences = {
+                major: document.getElementById('major').value,
+                industry: document.getElementById('industry').value,
+                skills: document.getElementById('skills').value,
+                location: document.getElementById('location').value
+            };
+            
+            const preview = document.getElementById('preferences-preview');
+            preview.innerHTML = `
+                <strong>Major:</strong> ${currentPreferences.major || 'Not specified'}<br>
+                <strong>Industry:</strong> ${currentPreferences.industry || 'Not specified'}<br>
+                <strong>Skills:</strong> ${currentPreferences.skills || 'Not specified'}<br>
+                <strong>Location:</strong> ${currentPreferences.location || 'Not specified'}
+            `;
+        }
+        
+        function testJobMatching() {
+            if (!currentPreferences.industry) {
+                alert('Please set your industry preference first!');
+                return;
+            }
+            
+            const jobs = getFilteredJobs(currentPreferences);
+            const recommendationsDiv = document.getElementById('job-recommendations');
+            
+            if (jobs.length === 0) {
+                recommendationsDiv.innerHTML = '<p>No jobs found matching your preferences. Try adjusting your industry or location.</p>';
+                return;
+            }
+            
+            let html = `<p><strong>Found ${jobs.length} job(s) matching your preferences:</strong></p>`;
+            jobs.forEach(job => {
+                html += `
+                    <div class="job-card">
+                        <div class="job-title">${job.title}</div>
+                        <div class="company">${job.company}</div>
+                        <div class="location">📍 ${job.location}</div>
+                        <div class="salary">💰 ${job.salary}</div>
+                        <p>${job.description}</p>
+                        <p><strong>Requirements:</strong> ${job.requirements.join(', ')}</p>
+                    </div>
+                `;
+            });
+            
+            recommendationsDiv.innerHTML = html;
+        }
+        
+        function getFilteredJobs(preferences) {
+            const allJobs = [
+                {
+                    title: 'Software Engineering Intern',
+                    company: 'Google',
+                    location: 'Mountain View, CA',
+                    description: 'Join Google as a Software Engineering Intern. Work on cutting-edge projects that impact billions of users worldwide.',
+                    requirements: ['Computer Science student', 'Python/JavaScript experience', 'Git knowledge'],
+                    salary: '$8,000/month',
+                    type: 'internship',
+                    industry: 'technology'
+                },
+                {
+                    title: 'UX/UI Design Intern',
+                    company: 'Adobe',
+                    location: 'San Jose, CA',
+                    description: 'Join Adobe as a UX/UI Design Intern. Work on creative tools like Photoshop, Illustrator, and XD.',
+                    requirements: ['Design/Art student', 'Figma/Adobe Creative Suite', 'Portfolio required'],
+                    salary: '$6,500/month',
+                    type: 'internship',
+                    industry: 'design'
+                },
+                {
+                    title: 'Marketing Intern',
+                    company: 'Nike',
+                    location: 'Portland, OR',
+                    description: 'Join Nike as a Marketing Intern. Work on global campaigns, social media strategy, and brand partnerships.',
+                    requirements: ['Marketing/Business student', 'Social media experience', 'Creative thinking'],
+                    salary: '$5,500/month',
+                    type: 'internship',
+                    industry: 'marketing'
+                },
+                {
+                    title: 'Software Engineering Intern',
+                    company: 'Microsoft',
+                    location: 'Seattle, WA',
+                    description: 'Join Microsoft as a Software Engineering Intern. Work on Azure cloud services, Office 365, or Windows development.',
+                    requirements: ['Computer Science student', 'C#/Python/JavaScript experience', 'Git knowledge'],
+                    salary: '$6,500/month',
+                    type: 'internship',
+                    industry: 'technology'
+                },
+                {
+                    title: 'Graphic Design Intern',
+                    company: 'Apple',
+                    location: 'Cupertino, CA',
+                    description: 'Join Apple as a Graphic Design Intern. Work on marketing materials, product packaging, and digital experiences.',
+                    requirements: ['Design/Art student', 'Adobe Creative Suite', 'Portfolio required'],
+                    salary: '$7,000/month',
+                    type: 'internship',
+                    industry: 'design'
+                },
+                {
+                    title: 'Frontend Developer Intern',
+                    company: 'Stripe',
+                    location: 'Remote',
+                    description: 'Join Stripe as a Frontend Developer Intern. Build beautiful user interfaces for payment processing and financial tools.',
+                    requirements: ['Frontend development experience', 'React/JavaScript', 'CSS/HTML'],
+                    salary: '$5,500/month',
+                    type: 'internship',
+                    industry: 'technology'
+                }
+            ];
+            
+            // Filter jobs based on preferences
+            let filteredJobs = allJobs;
+            
+            if (preferences.industry) {
+                const industry = preferences.industry.toLowerCase();
+                if (industry === 'design') {
+                    filteredJobs = allJobs.filter(job => job.industry === 'design');
+                } else if (industry === 'marketing') {
+                    filteredJobs = allJobs.filter(job => job.industry === 'marketing');
+                } else if (industry === 'technology') {
+                    filteredJobs = allJobs.filter(job => job.industry === 'technology');
+                }
+            }
+            
+            if (preferences.location) {
+                const location = preferences.location.toLowerCase();
+                if (location.includes('remote')) {
+                    filteredJobs = filteredJobs.filter(job => job.location.toLowerCase().includes('remote'));
+                } else if (location) {
+                    filteredJobs = filteredJobs.filter(job => 
+                        job.location.toLowerCase().includes(location) || 
+                        job.location.toLowerCase().includes('remote')
+                    );
+                }
+            }
+            
+            return filteredJobs;
+        }
+    </script>
+</body>
+</html>

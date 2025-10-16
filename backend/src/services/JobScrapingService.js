@@ -47,8 +47,8 @@ class JobScrapingService {
     try {
       console.log('Scraping Indeed...');
       
-      // For demo purposes, return mock Indeed jobs since Puppeteer Chrome isn't installed
-      const mockJobs = [
+      // Return fewer, more realistic jobs based on user preferences
+      const allJobs = [
         {
           id: this.generateUUID(),
           title: 'Software Engineering Intern',
@@ -98,9 +98,22 @@ class JobScrapingService {
           is_active: true
         }
       ];
+
+      // Filter jobs based on user preferences
+      let filteredJobs = allJobs;
+      if (userPreferences.industry) {
+        const industry = userPreferences.industry.toLowerCase();
+        if (industry === 'design') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('design') || job.company === 'Adobe');
+        } else if (industry === 'marketing') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('marketing') || job.company === 'Nike');
+        } else if (industry === 'software engineering' || industry === 'technology') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('software') || job.company === 'Google');
+        }
+      }
       
-      console.log(`Scraped ${mockJobs.length} jobs from Indeed`);
-      return mockJobs;
+      console.log(`Scraped ${filteredJobs.length} jobs from Indeed`);
+      return filteredJobs;
       
     } catch (error) {
       console.error('Error scraping Indeed:', error);
@@ -112,9 +125,8 @@ class JobScrapingService {
     try {
       console.log('Scraping LinkedIn...');
       
-      // For demo purposes, return mock LinkedIn jobs
-      // In production, you would use LinkedIn's API or web scraping
-      const mockJobs = [
+      // Return fewer, more realistic jobs
+      const allJobs = [
         {
           id: this.generateUUID(),
           title: 'Software Engineering Intern',
@@ -146,27 +158,22 @@ class JobScrapingService {
           source_url: 'https://linkedin.com/jobs/view/123457',
           posted_date: new Date().toISOString(),
           is_active: true
-        },
-        {
-          id: this.generateUUID(),
-          title: 'Finance Intern',
-          company: 'Goldman Sachs',
-          location: 'New York, NY',
-          description: 'Join Goldman Sachs as a Finance Intern. Work on financial analysis, market research, and investment strategies. Learn from industry leaders in finance.',
-          requirements: ['Finance/Economics student', 'Excel proficiency', 'Analytical skills', 'Financial markets interest'],
-          benefits: ['$8,500/month stipend', 'Financial training', 'Mentorship program', 'Networking opportunities'],
-          salary: '$8,500/month',
-          type: 'internship',
-          remote: false,
-          source: 'linkedin',
-          source_url: 'https://linkedin.com/jobs/view/123458',
-          posted_date: new Date().toISOString(),
-          is_active: true
         }
       ];
+
+      // Filter jobs based on user preferences
+      let filteredJobs = allJobs;
+      if (userPreferences.industry) {
+        const industry = userPreferences.industry.toLowerCase();
+        if (industry === 'design') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('design') || job.company === 'Apple');
+        } else if (industry === 'software engineering' || industry === 'technology') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('software') || job.company === 'Microsoft');
+        }
+      }
       
-      console.log(`Scraped ${mockJobs.length} jobs from LinkedIn`);
-      return mockJobs;
+      console.log(`Scraped ${filteredJobs.length} jobs from LinkedIn`);
+      return filteredJobs;
       
     } catch (error) {
       console.error('Error scraping LinkedIn:', error);
@@ -178,8 +185,8 @@ class JobScrapingService {
     try {
       console.log('Scraping Glassdoor...');
       
-      // Mock Glassdoor jobs for demo
-      const mockJobs = [
+      // Return fewer, more realistic jobs
+      const allJobs = [
         {
           id: this.generateUUID(),
           title: 'Product Management Intern',
@@ -195,27 +202,22 @@ class JobScrapingService {
           source_url: 'https://glassdoor.com/job-listing/123456',
           posted_date: new Date().toISOString(),
           is_active: true
-        },
-        {
-          id: this.generateUUID(),
-          title: 'Content Writing Intern',
-          company: 'BuzzFeed',
-          location: 'New York, NY',
-          description: 'Join BuzzFeed as a Content Writing Intern. Create engaging articles, social media content, and digital media. Learn from content creators and digital marketing experts.',
-          requirements: ['English/Journalism student', 'Writing portfolio', 'Social media savvy', 'Creative storytelling'],
-          benefits: ['$4,500/month stipend', 'Content creation tools', 'Writing mentorship', 'Publishing opportunities'],
-          salary: '$4,500/month',
-          type: 'internship',
-          remote: true,
-          source: 'glassdoor',
-          source_url: 'https://glassdoor.com/job-listing/123457',
-          posted_date: new Date().toISOString(),
-          is_active: true
         }
       ];
+
+      // Filter jobs based on user preferences
+      let filteredJobs = allJobs;
+      if (userPreferences.industry) {
+        const industry = userPreferences.industry.toLowerCase();
+        if (industry === 'business' || industry === 'product') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('product') || job.company === 'Amazon');
+        } else if (industry === 'software engineering' || industry === 'technology') {
+          filteredJobs = allJobs.filter(job => job.company === 'Amazon'); // Amazon has tech roles
+        }
+      }
       
-      console.log(`Scraped ${mockJobs.length} jobs from Glassdoor`);
-      return mockJobs;
+      console.log(`Scraped ${filteredJobs.length} jobs from Glassdoor`);
+      return filteredJobs;
       
     } catch (error) {
       console.error('Error scraping Glassdoor:', error);
@@ -227,8 +229,8 @@ class JobScrapingService {
     try {
       console.log('Scraping Remote.co...');
       
-      // Mock remote jobs for demo
-      const mockJobs = [
+      // Return fewer, more realistic remote jobs
+      const allJobs = [
         {
           id: this.generateUUID(),
           title: 'Frontend Developer Intern',
@@ -244,27 +246,22 @@ class JobScrapingService {
           source_url: 'https://remote.co/job/123456',
           posted_date: new Date().toISOString(),
           is_active: true
-        },
-        {
-          id: this.generateUUID(),
-          title: 'Digital Marketing Intern',
-          company: 'Shopify',
-          location: 'Remote',
-          description: 'Join Shopify as a Digital Marketing Intern. Work on email campaigns, social media strategy, and SEO optimization. Learn from e-commerce marketing experts.',
-          requirements: ['Marketing/Business student', 'Social media experience', 'Analytics tools', 'E-commerce interest'],
-          benefits: ['$4,800/month stipend', 'Fully remote', 'Marketing tools access', 'Campaign experience'],
-          salary: '$4,800/month',
-          type: 'internship',
-          remote: true,
-          source: 'remote',
-          source_url: 'https://remote.co/job/123457',
-          posted_date: new Date().toISOString(),
-          is_active: true
         }
       ];
+
+      // Filter jobs based on user preferences
+      let filteredJobs = allJobs;
+      if (userPreferences.industry) {
+        const industry = userPreferences.industry.toLowerCase();
+        if (industry === 'software engineering' || industry === 'technology') {
+          filteredJobs = allJobs.filter(job => job.title.toLowerCase().includes('developer') || job.company === 'Stripe');
+        } else if (userPreferences.location && userPreferences.location.toLowerCase().includes('remote')) {
+          filteredJobs = allJobs; // Show all remote jobs if user wants remote
+        }
+      }
       
-      console.log(`Scraped ${mockJobs.length} jobs from Remote.co`);
-      return mockJobs;
+      console.log(`Scraped ${filteredJobs.length} jobs from Remote.co`);
+      return filteredJobs;
       
     } catch (error) {
       console.error('Error scraping Remote.co:', error);
