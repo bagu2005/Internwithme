@@ -65,12 +65,14 @@ app.get('/health', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API routes
-// Health check endpoint
+// Health check endpoint (simple version)
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  res.status(200).json({
+    status: 'OK',
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -101,10 +103,10 @@ const startServer = async () => {
       console.log('⚠️  Database not available - running in demo mode');
       console.log('   To enable full functionality, start PostgreSQL');
     }
-    
+
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Frontend: http://localhost:3001`);
     });
