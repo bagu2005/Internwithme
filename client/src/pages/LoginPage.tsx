@@ -39,11 +39,11 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleSuccess = async (credential: string) => {
+  const handleGoogleSuccess = async () => {
     try {
       setIsLoading(true);
-      // For now, just show a message since we need to implement Google OAuth with Supabase
-      toast.success('Google Sign-In clicked! (Implementation needed)');
+      await authService.signInWithGoogle();
+      // Redirect will occur; this line may not run
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed. Please try again.');

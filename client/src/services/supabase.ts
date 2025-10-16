@@ -64,6 +64,17 @@ export const jobService = {
 
 // Auth functions
 export const authService = {
+  // Sign in with Google (OAuth)
+  async signInWithGoogle() {
+    const redirectTo = window.location.origin;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo }
+    })
+    if (error) throw error
+    return data
+  },
+
   // Sign up
   async signUp(email: string, password: string, userData: any) {
     const { data, error } = await supabase.auth.signUp({
