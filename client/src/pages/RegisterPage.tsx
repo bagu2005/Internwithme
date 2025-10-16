@@ -40,7 +40,7 @@ export default function RegisterPage() {
       })
       
       if (result.user) {
-        toast.success('Registration successful! Please check your email to verify your account.')
+        toast.success('Registration successful! You can now sign in.')
         navigate('/login')
       }
     } catch (error: any) {

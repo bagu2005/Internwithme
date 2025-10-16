@@ -33,7 +33,12 @@ export default function LoginPage() {
         navigate('/')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Login failed')
+      console.error('Login error:', error)
+      if (error.message?.includes('email not confirmed')) {
+        toast.error('Please check your email and click the confirmation link before signing in.')
+      } else {
+        toast.error(error.message || 'Login failed')
+      }
     } finally {
       setIsLoading(false)
     }
