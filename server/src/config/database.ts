@@ -163,29 +163,63 @@ const initializeTables = async (): Promise<void> => {
       )
     `);
 
-    // Create applications table
+    // Also keep internships table for backward compatibility during transition
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS internships (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        company_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(200) NOT NULL,
+        description TEXT NOT NULL,
+        requirements TEXT[],
+        responsibilities TEXT[],
+        benefits TEXT[],
+        duration INTEGER NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        location VARCHAR(200) NOT NULL,
+        remote BOOLEAN DEFAULT FALSE,
+        paid BOOLEAN DEFAULT FALSE,
+        compensation_amount DECIMAL(10,2),
+        compensation_currency VARCHAR(3) DEFAULT 'USD',
+        compensation_type VARCHAR(20) CHECK (compensation_type IN ('hourly', 'monthly', 'stipend')),
+        category VARCHAR(100),
+        skills TEXT[],
+        application_deadline DATE NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create applications table (supports both old and new structure)
     await client.query(`
       CREATE TABLE IF NOT EXISTS applications (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        intern_id UUID REFERENCES users(id) ON DELETE CASCADE,
         job_posting_id UUID REFERENCES job_postings(id) ON DELETE CASCADE,
+        internship_id UUID REFERENCES internships(id) ON DELETE CASCADE,
         status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'accepted', 'rejected')),
         cover_letter TEXT,
         resume_url VARCHAR(500),
         applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         reviewed_at TIMESTAMP,
         notes TEXT,
-        UNIQUE(user_id, job_posting_id)
+        UNIQUE(user_id, job_posting_id),
+        UNIQUE(intern_id, internship_id)
       )
     `);
 
-    // Create reviews table (simplified for job aggregation)
+    // Create reviews table (supports both old and new structure)
     await client.query(`
       CREATE TABLE IF NOT EXISTS reviews (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        company VARCHAR(200) NOT NULL,
+        intern_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company VARCHAR(200),
         job_posting_id UUID REFERENCES job_postings(id) ON DELETE SET NULL,
+        internship_id UUID REFERENCES internships(id) ON DELETE SET NULL,
         rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
         title VARCHAR(200) NOT NULL,
         content TEXT NOT NULL,
@@ -264,8 +298,13 @@ const initializeTables = async (): Promise<void> => {
 
     console.log('✅ Database tables initialized successfully');
     
-    // Run migration to job aggregation platform
-    await migrateToJobAggregation();
+    // Run migration to job aggregation platform (with error handling)
+    try {
+      await migrateToJobAggregation();
+    } catch (migrationError) {
+      console.log('⚠️  Migration failed, but continuing with startup:', migrationError);
+      // Don't fail the entire startup if migration fails
+    }
     
   } catch (error) {
     console.error('❌ Error initializing database tables:', error);
