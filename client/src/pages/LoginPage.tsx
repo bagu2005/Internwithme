@@ -5,6 +5,7 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { authService } from '../services/supabase'
 import { toast } from 'react-hot-toast'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 
 interface LoginForm {
   email: string
@@ -38,7 +39,18 @@ export default function LoginPage() {
     }
   }
 
-  // Google authentication removed - using Supabase auth instead
+  const handleGoogleSuccess = async (credential: string) => {
+    try {
+      setIsLoading(true);
+      // For now, just show a message since we need to implement Google OAuth with Supabase
+      toast.success('Google Sign-In clicked! (Implementation needed)');
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      toast.error(error.message || 'Google sign-in failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -166,14 +178,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Google Sign-In - Temporarily disabled */}
-        {/* <div className="mt-6">
+        {/* Google Sign-In */}
+        <div className="mt-6">
           <GoogleSignInButton
             onSuccess={handleGoogleSuccess}
             text="signin_with"
             className="w-full"
           />
-        </div> */}
+        </div>
 
       </div>
     </div>
