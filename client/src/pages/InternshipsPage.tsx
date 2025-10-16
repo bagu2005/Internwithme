@@ -6,6 +6,7 @@ import { realTimeService } from '../services/realTimeService'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '../hooks/useAuth'
 import AdvancedFilters from '../components/AdvancedFilters'
+import ApplicationPlanner from '../components/ApplicationPlanner'
 
 // Job interface
 interface Job {
@@ -64,6 +65,8 @@ export default function InternshipsPage() {
   
   // Advanced filters state
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [showApplicationPlanner, setShowApplicationPlanner] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [filters, setFilters] = useState<FilterState>({
     salaryRange: [0, 10000],
     companySize: '',
@@ -474,12 +477,21 @@ export default function InternshipsPage() {
                     <div className="flex space-x-2">
                       {!applications.has(job.id) && (
                         <button
-                          onClick={() => applyToJob(job)}
+                          onClick={() => {
+                            setSelectedJob(job)
+                            setShowApplicationPlanner(true)
+                          }}
                           className="btn-primary"
                         >
                           Apply Now
                         </button>
                       )}
+                      <button
+                        onClick={() => window.open(job.sourceUrl || `https://indeed.com/viewjob?jk=${job.id}`, '_blank')}
+                        className="btn-outline"
+                      >
+                        View Original
+                      </button>
                       <Link
                         to={`/jobs/${job.id}`}
                         className="btn-outline"
@@ -618,6 +630,18 @@ export default function InternshipsPage() {
         onClose={() => setShowAdvancedFilters(false)}
         isOpen={showAdvancedFilters}
       />
+      
+      {selectedJob && (
+        <ApplicationPlanner
+          job={selectedJob}
+          isOpen={showApplicationPlanner}
+          onClose={() => {
+            setShowApplicationPlanner(false)
+            setSelectedJob(null)
+          }}
+          onApply={applyToJob}
+        />
+      )}
     </div>
   )
 }
