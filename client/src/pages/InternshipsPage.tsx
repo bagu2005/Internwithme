@@ -532,23 +532,31 @@ export default function InternshipsPage() {
                           Apply Now
                         </button>
                       )}
-                      <button
-                        onClick={() => {
-                          const url = job.sourceUrl || 
-                            (job.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
-                             job.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
-                             job.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
-                             job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
-                             job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
-                             job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
-                             job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
-                             `https://www.indeed.com/viewjob?jk=${job.id}&q=${encodeURIComponent(job.title)}&l=singapore`)
-                          window.open(url, '_blank')
-                        }}
-                        className="btn-outline"
-                      >
-                        View Original
-                      </button>
+                      <div className="flex space-x-1">
+                        <button
+                          onClick={() => {
+                            const url = job.sourceUrl || 
+                              (job.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
+                               job.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
+                               job.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
+                               job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
+                               job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
+                               job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
+                               job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
+                               `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`)
+                            window.open(url, '_blank')
+                          }}
+                          className="btn-outline text-xs px-2 py-1"
+                        >
+                          Company
+                        </button>
+                        <button
+                          onClick={() => window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`, '_blank')}
+                          className="btn-outline text-xs px-2 py-1"
+                        >
+                          LinkedIn
+                        </button>
+                      </div>
                       <Link
                         to={`/jobs/${job.id}`}
                         className="btn-outline"

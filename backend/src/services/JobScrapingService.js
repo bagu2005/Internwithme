@@ -3489,8 +3489,7 @@ class JobScrapingService {
       'https://weworkremotely.com/',
       'https://flexjobs.com/',
       'https://angel.co/jobs',
-      'https://www.linkedin.com/jobs/',
-      'https://www.indeed.com/remote-jobs'
+      'https://www.linkedin.com/jobs/'
     ]
 
     if (companyUrls[company]) {
@@ -3498,9 +3497,10 @@ class JobScrapingService {
     } else if (company.includes('Remote') || company.includes('remote')) {
       return remoteUrls[Math.floor(Math.random() * remoteUrls.length)]
     } else {
-      // Fallback to Indeed with more realistic parameters
-      const jobTitle = title.toLowerCase().replace(/\s+/g, '-')
-      return `https://www.indeed.com/viewjob?jk=${Math.random().toString(36).substr(2, 9)}&q=${encodeURIComponent(jobTitle)}&l=singapore`
+      // Better fallback - use LinkedIn Jobs which is more reliable
+      const jobTitle = encodeURIComponent(title)
+      const location = encodeURIComponent('Singapore')
+      return `https://www.linkedin.com/jobs/search/?keywords=${jobTitle}&location=${location}&f_TPR=r86400`
     }
   }
 }
