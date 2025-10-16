@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
 import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { AuthResponse } from '../../../shared/types'
-import GoogleSignInButton from '../components/GoogleSignInButton'
-import { googleAuthService } from '../services/googleAuthService'
+import { authService } from '../services/supabase'
 import { toast } from 'react-hot-toast'
 
 interface RegisterForm {
@@ -18,7 +15,6 @@ interface RegisterForm {
 }
 
 export default function RegisterPage() {
-  const { register: registerUser, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -36,37 +32,24 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true)
     try {
-      await registerUser({
+      const result = await authService.signUp(data.email, data.password, {
         firstName: data.firstName,
         lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-        role: 'intern', // All users are job seekers in the aggregation platform
+        role: 'intern'
       })
-      // Redirect to OTP verification page
-      navigate('/verify-otp', { state: { email: data.email } })
-    } catch (error) {
-      // Error is handled by the auth context
+      
+      if (result.user) {
+        toast.success('Registration successful! Please check your email to verify your account.')
+        navigate('/login')
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Registration failed')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleSuccess = async (credential: string) => {
-    try {
-      setIsLoading(true);
-      const authResponse = await googleAuthService.googleLogin(credential);
-      
-      // Use the new loginWithGoogle method
-      loginWithGoogle(authResponse);
-      navigate('/');
-    } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      toast.error(error.message || 'Google sign-in failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Google authentication removed - using Supabase auth instead
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -272,14 +255,14 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Google Sign-In */}
-        <div className="mt-6">
+        {/* Google Sign-In - Temporarily disabled */}
+        {/* <div className="mt-6">
           <GoogleSignInButton
             onSuccess={handleGoogleSuccess}
             text="signup_with"
             className="w-full"
           />
-        </div>
+        </div> */}
 
       </div>
     </div>

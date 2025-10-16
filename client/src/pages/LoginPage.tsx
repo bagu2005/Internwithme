@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
 import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { AuthResponse } from '../../../shared/types'
-import GoogleSignInButton from '../components/GoogleSignInButton'
-import { googleAuthService } from '../services/googleAuthService'
+import { authService } from '../services/supabase'
 import { toast } from 'react-hot-toast'
 
 interface LoginForm {
@@ -15,7 +12,6 @@ interface LoginForm {
 }
 
 export default function LoginPage() {
-  const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -29,30 +25,20 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
     try {
-      await login(data.email, data.password)
-      navigate('/')
-    } catch (error) {
-      // Error is handled by the auth context
+      const result = await authService.signIn(data.email, data.password)
+      
+      if (result.user) {
+        toast.success('Login successful!')
+        navigate('/')
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleGoogleSuccess = async (credential: string) => {
-    try {
-      setIsLoading(true);
-      const authResponse = await googleAuthService.googleLogin(credential);
-      
-      // Use the new loginWithGoogle method
-      loginWithGoogle(authResponse);
-      navigate('/');
-    } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      toast.error(error.message || 'Google sign-in failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Google authentication removed - using Supabase auth instead
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -180,14 +166,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Google Sign-In */}
-        <div className="mt-6">
+        {/* Google Sign-In - Temporarily disabled */}
+        {/* <div className="mt-6">
           <GoogleSignInButton
             onSuccess={handleGoogleSuccess}
             text="signin_with"
             className="w-full"
           />
-        </div>
+        </div> */}
 
       </div>
     </div>
