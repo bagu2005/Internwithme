@@ -114,6 +114,15 @@ export default function ApplicationPlanner({ job, isOpen, onClose, onApply }: Ap
     toast.success('Step marked as completed!')
   }
 
+  const markStepIncomplete = (stepId: string) => {
+    setSteps(prev => prev.map(step => 
+      step.id === stepId 
+        ? { ...step, status: 'pending' as const }
+        : step
+    ))
+    toast.success('Step marked as incomplete!')
+  }
+
   const startStep = (stepId: string) => {
     setSteps(prev => prev.map(step => 
       step.id === stepId 
@@ -210,6 +219,14 @@ export default function ApplicationPlanner({ job, isOpen, onClose, onApply }: Ap
                           className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
                         >
                           Complete
+                        </button>
+                      )}
+                      {step.status === 'completed' && (
+                        <button
+                          onClick={() => markStepIncomplete(step.id)}
+                          className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                        >
+                          Undo
                         </button>
                       )}
                     </div>

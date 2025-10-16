@@ -13,6 +13,7 @@ import InternshipsPage from './pages/InternshipsPage'
 import InternshipDetailPage from './pages/InternshipDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import ApplicationsPage from './pages/ApplicationsPage'
+import MyApplicationsPage from './pages/MyApplicationsPage'
 import SubscriptionPage from './pages/SubscriptionPage'
 import ContactPage from './pages/ContactPage'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -49,6 +50,7 @@ function App() {
                  <>
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/applications" element={<ApplicationsPage />} />
+                  <Route path="/my-applications" element={<MyApplicationsPage />} />
                   <Route path="/subscription" element={<SubscriptionPage />} />
 
                    {/* Verification routes */}

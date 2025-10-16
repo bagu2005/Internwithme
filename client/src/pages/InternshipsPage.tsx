@@ -100,22 +100,68 @@ export default function InternshipsPage() {
     if (newSavedJobs.has(jobId)) {
       newSavedJobs.delete(jobId)
       toast.success('Job removed from saved')
+      
+      // Remove from localStorage
+      const savedJobsData = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+      const updatedSavedJobs = savedJobsData.filter((job: any) => job.jobId !== jobId)
+      localStorage.setItem('savedJobs', JSON.stringify(updatedSavedJobs))
     } else {
       newSavedJobs.add(jobId)
       toast.success('Job saved!')
+      
+      // Add to localStorage
+      const job = jobs.find(j => j.id === jobId)
+      if (job) {
+        const savedJobsData = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+        const newSavedJob = {
+          jobId: job.id,
+          savedDate: new Date().toISOString(),
+          job: {
+            id: job.id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            salary: job.salary,
+            type: job.type,
+            description: job.description,
+            sourceUrl: job.sourceUrl,
+            source: job.source
+          }
+        }
+        savedJobsData.push(newSavedJob)
+        localStorage.setItem('savedJobs', JSON.stringify(savedJobsData))
+      }
     }
     setSavedJobs(newSavedJobs)
   }
 
   const applyToJob = (job: Job) => {
     const newApplications = new Map(applications)
-    newApplications.set(job.id, {
+    const newApplication = {
       jobId: job.id,
-      status: 'applied',
+      status: 'applied' as const,
       appliedDate: new Date().toISOString(),
-      notes: ''
-    })
+      notes: '',
+      job: {
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        salary: job.salary,
+        type: job.type,
+        description: job.description,
+        sourceUrl: job.sourceUrl,
+        source: job.source
+      }
+    }
+    newApplications.set(job.id, newApplication)
     setApplications(newApplications)
+    
+    // Save to localStorage
+    const applicationsData = JSON.parse(localStorage.getItem('applications') || '[]')
+    applicationsData.push(newApplication)
+    localStorage.setItem('applications', JSON.stringify(applicationsData))
+    
     toast.success(`Applied to ${job.title} at ${job.company}`)
   }
 

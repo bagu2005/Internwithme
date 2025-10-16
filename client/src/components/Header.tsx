@@ -32,6 +32,14 @@ export default function Header() {
             >
               Browse Internships
             </Link>
+            {user && (
+              <Link
+                to="/my-applications"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                My Applications
+              </Link>
+            )}
             <Link
               to="/contact"
               className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -150,6 +158,15 @@ export default function Header() {
               >
                 Browse Internships
               </Link>
+              {user && (
+                <Link
+                  to="/my-applications"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Applications
+                </Link>
+              )}
               <Link
                 to="/contact"
                 className="text-gray-600 hover:text-gray-900 transition-colors"
