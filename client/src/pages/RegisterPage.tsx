@@ -13,6 +13,10 @@ interface RegisterForm {
   email: string
   password: string
   confirmPassword: string
+  major: string
+  industry: string
+  skills: string
+  location: string
 }
 
 export default function RegisterPage() {
@@ -36,7 +40,11 @@ export default function RegisterPage() {
       const result = await authService.signUp(data.email, data.password, {
         firstName: data.firstName,
         lastName: data.lastName,
-        role: 'intern'
+        role: 'intern',
+        major: data.major,
+        industry: data.industry,
+        skills: data.skills,
+        location: data.location
       })
       
       if (result.user) {
@@ -163,7 +171,86 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Role selection removed - all users are job seekers in the aggregation platform */}
+            {/* User Preferences Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Tell us about your interests</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="major" className="block text-sm font-medium text-gray-700">
+                    Major/Field of Study
+                  </label>
+                  <select
+                    {...register('major', { required: 'Please select your major' })}
+                    id="major"
+                    className={`input ${errors.major ? 'input-error' : ''}`}
+                  >
+                    <option value="">Select your major</option>
+                    <option value="computer-science">Computer Science</option>
+                    <option value="design">Design/Art</option>
+                    <option value="business">Business/Marketing</option>
+                    <option value="finance">Finance/Economics</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="journalism">Journalism/Communications</option>
+                    <option value="data-science">Data Science</option>
+                    <option value="other">Other</option>
+                  </select>
+                  {errors.major && (
+                    <p className="mt-1 text-sm text-red-600">{errors.major.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700">
+                    Preferred Industry
+                  </label>
+                  <select
+                    {...register('industry', { required: 'Please select your preferred industry' })}
+                    id="industry"
+                    className={`input ${errors.industry ? 'input-error' : ''}`}
+                  >
+                    <option value="">Select industry</option>
+                    <option value="technology">Technology</option>
+                    <option value="design">Design/Creative</option>
+                    <option value="marketing">Marketing/Advertising</option>
+                    <option value="finance">Finance/Banking</option>
+                    <option value="consulting">Consulting</option>
+                    <option value="media">Media/Entertainment</option>
+                    <option value="startups">Startups</option>
+                    <option value="nonprofit">Non-profit</option>
+                  </select>
+                  {errors.industry && (
+                    <p className="mt-1 text-sm text-red-600">{errors.industry.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
+                  Skills (comma-separated)
+                </label>
+                <input
+                  {...register('skills')}
+                  id="skills"
+                  type="text"
+                  className="input"
+                  placeholder="e.g., JavaScript, Python, Design, Marketing"
+                />
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                  Preferred Location
+                </label>
+                <input
+                  {...register('location')}
+                  id="location"
+                  type="text"
+                  className="input"
+                  placeholder="e.g., San Francisco, Remote, New York"
+                />
+              </div>
+            </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">

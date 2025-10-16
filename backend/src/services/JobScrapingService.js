@@ -67,17 +67,33 @@ class JobScrapingService {
         },
         {
           id: this.generateUUID(),
-          title: 'Data Science Intern',
-          company: 'Meta (Facebook)',
-          location: 'Menlo Park, CA',
-          description: 'Work with Meta\'s data science team to analyze user behavior, build predictive models, and help shape the future of social media.',
-          requirements: ['Statistics/Data Science background', 'Python/R experience', 'SQL knowledge', 'Machine learning basics'],
-          benefits: ['$7,500/month stipend', 'Housing assistance', 'Health insurance', 'Data science mentorship'],
-          salary: '$7,500/month',
+          title: 'UX/UI Design Intern',
+          company: 'Adobe',
+          location: 'San Jose, CA',
+          description: 'Join Adobe as a UX/UI Design Intern. Work on creative tools like Photoshop, Illustrator, and XD. Learn from world-class designers and contribute to products used by millions of creatives.',
+          requirements: ['Design/Art student', 'Figma/Adobe Creative Suite', 'Portfolio required', 'User research interest'],
+          benefits: ['$6,500/month stipend', 'Adobe Creative Cloud access', 'Design mentorship', 'Creative workspace'],
+          salary: '$6,500/month',
           type: 'internship',
           remote: false,
           source: 'indeed',
-          source_url: 'https://indeed.com/viewjob?jk=123457',
+          source_url: 'https://indeed.com/viewjob?jk=123458',
+          posted_date: new Date().toISOString(),
+          is_active: true
+        },
+        {
+          id: this.generateUUID(),
+          title: 'Marketing Intern',
+          company: 'Nike',
+          location: 'Portland, OR',
+          description: 'Join Nike as a Marketing Intern. Work on global campaigns, social media strategy, and brand partnerships. Learn from marketing leaders in the sports industry.',
+          requirements: ['Marketing/Business student', 'Social media experience', 'Creative thinking', 'Sports interest'],
+          benefits: ['$5,500/month stipend', 'Nike product discounts', 'Marketing mentorship', 'Campaign experience'],
+          salary: '$5,500/month',
+          type: 'internship',
+          remote: false,
+          source: 'indeed',
+          source_url: 'https://indeed.com/viewjob?jk=123459',
           posted_date: new Date().toISOString(),
           is_active: true
         }
@@ -117,17 +133,33 @@ class JobScrapingService {
         },
         {
           id: this.generateUUID(),
-          title: 'Data Science Intern',
-          company: 'Netflix',
-          location: 'Los Gatos, CA',
-          description: 'Work with Netflix\'s data science team to analyze viewing patterns, optimize content recommendations, and help shape the future of entertainment.',
-          requirements: ['Statistics/Data Science background', 'Python/R experience', 'SQL knowledge', 'Machine learning basics'],
-          benefits: ['$7,000/month stipend', 'Free Netflix subscription', 'Flexible work hours', 'Data science mentorship'],
+          title: 'Graphic Design Intern',
+          company: 'Apple',
+          location: 'Cupertino, CA',
+          description: 'Join Apple as a Graphic Design Intern. Work on marketing materials, product packaging, and digital experiences. Learn from world-class designers in a creative environment.',
+          requirements: ['Design/Art student', 'Adobe Creative Suite', 'Portfolio required', 'Attention to detail'],
+          benefits: ['$7,000/month stipend', 'Apple product discounts', 'Design mentorship', 'Creative workspace'],
           salary: '$7,000/month',
           type: 'internship',
-          remote: true,
+          remote: false,
           source: 'linkedin',
           source_url: 'https://linkedin.com/jobs/view/123457',
+          posted_date: new Date().toISOString(),
+          is_active: true
+        },
+        {
+          id: this.generateUUID(),
+          title: 'Finance Intern',
+          company: 'Goldman Sachs',
+          location: 'New York, NY',
+          description: 'Join Goldman Sachs as a Finance Intern. Work on financial analysis, market research, and investment strategies. Learn from industry leaders in finance.',
+          requirements: ['Finance/Economics student', 'Excel proficiency', 'Analytical skills', 'Financial markets interest'],
+          benefits: ['$8,500/month stipend', 'Financial training', 'Mentorship program', 'Networking opportunities'],
+          salary: '$8,500/month',
+          type: 'internship',
+          remote: false,
+          source: 'linkedin',
+          source_url: 'https://linkedin.com/jobs/view/123458',
           posted_date: new Date().toISOString(),
           is_active: true
         }
@@ -163,6 +195,22 @@ class JobScrapingService {
           source_url: 'https://glassdoor.com/job-listing/123456',
           posted_date: new Date().toISOString(),
           is_active: true
+        },
+        {
+          id: this.generateUUID(),
+          title: 'Content Writing Intern',
+          company: 'BuzzFeed',
+          location: 'New York, NY',
+          description: 'Join BuzzFeed as a Content Writing Intern. Create engaging articles, social media content, and digital media. Learn from content creators and digital marketing experts.',
+          requirements: ['English/Journalism student', 'Writing portfolio', 'Social media savvy', 'Creative storytelling'],
+          benefits: ['$4,500/month stipend', 'Content creation tools', 'Writing mentorship', 'Publishing opportunities'],
+          salary: '$4,500/month',
+          type: 'internship',
+          remote: true,
+          source: 'glassdoor',
+          source_url: 'https://glassdoor.com/job-listing/123457',
+          posted_date: new Date().toISOString(),
+          is_active: true
         }
       ];
       
@@ -196,6 +244,22 @@ class JobScrapingService {
           source_url: 'https://remote.co/job/123456',
           posted_date: new Date().toISOString(),
           is_active: true
+        },
+        {
+          id: this.generateUUID(),
+          title: 'Digital Marketing Intern',
+          company: 'Shopify',
+          location: 'Remote',
+          description: 'Join Shopify as a Digital Marketing Intern. Work on email campaigns, social media strategy, and SEO optimization. Learn from e-commerce marketing experts.',
+          requirements: ['Marketing/Business student', 'Social media experience', 'Analytics tools', 'E-commerce interest'],
+          benefits: ['$4,800/month stipend', 'Fully remote', 'Marketing tools access', 'Campaign experience'],
+          salary: '$4,800/month',
+          type: 'internship',
+          remote: true,
+          source: 'remote',
+          source_url: 'https://remote.co/job/123457',
+          posted_date: new Date().toISOString(),
+          is_active: true
         }
       ];
       
@@ -225,27 +289,55 @@ class JobScrapingService {
       let scoreA = 0;
       let scoreB = 0;
 
-      // Score based on industry match
+      // Always prioritize internships
+      if (a.type === 'internship') scoreA += 10;
+      if (b.type === 'internship') scoreB += 10;
+
+      // Score based on industry match (highest priority)
       if (preferences.industry) {
         const industryLower = preferences.industry.toLowerCase();
-        if (a.title.toLowerCase().includes(industryLower) || a.description.toLowerCase().includes(industryLower)) scoreA += 3;
-        if (b.title.toLowerCase().includes(industryLower) || b.description.toLowerCase().includes(industryLower)) scoreB += 3;
+        if (a.title.toLowerCase().includes(industryLower) || a.description.toLowerCase().includes(industryLower)) scoreA += 15;
+        if (b.title.toLowerCase().includes(industryLower) || b.description.toLowerCase().includes(industryLower)) scoreB += 15;
+      }
+
+      // Score based on major/field of study
+      if (preferences.major) {
+        const majorLower = preferences.major.toLowerCase();
+        const majorKeywords = {
+          'computer-science': ['software', 'engineering', 'programming', 'development', 'coding'],
+          'design': ['design', 'ux', 'ui', 'creative', 'graphic', 'visual'],
+          'business': ['business', 'marketing', 'management', 'strategy', 'sales'],
+          'finance': ['finance', 'financial', 'banking', 'investment', 'analyst'],
+          'journalism': ['content', 'writing', 'journalism', 'communications', 'editorial'],
+          'data-science': ['data', 'analytics', 'science', 'machine learning', 'statistics']
+        };
+        
+        if (majorKeywords[majorLower]) {
+          majorKeywords[majorLower].forEach(keyword => {
+            if (a.title.toLowerCase().includes(keyword) || a.description.toLowerCase().includes(keyword)) scoreA += 8;
+            if (b.title.toLowerCase().includes(keyword) || b.description.toLowerCase().includes(keyword)) scoreB += 8;
+          });
+        }
       }
 
       // Score based on skills match
       if (preferences.skills && preferences.skills.length > 0) {
         preferences.skills.forEach(skill => {
           const skillLower = skill.toLowerCase();
-          if (a.requirements.some(req => req.toLowerCase().includes(skillLower))) scoreA += 2;
-          if (b.requirements.some(req => req.toLowerCase().includes(skillLower))) scoreB += 2;
+          if (a.requirements.some(req => req.toLowerCase().includes(skillLower)) ||
+              a.description.toLowerCase().includes(skillLower)) scoreA += 5;
+          if (b.requirements.some(req => req.toLowerCase().includes(skillLower)) ||
+              b.description.toLowerCase().includes(skillLower)) scoreB += 5;
         });
       }
 
       // Score based on location match
       if (preferences.location) {
         const locationLower = preferences.location.toLowerCase();
-        if (a.location.toLowerCase().includes(locationLower)) scoreA += 2;
-        if (b.location.toLowerCase().includes(locationLower)) scoreB += 2;
+        if (a.location.toLowerCase().includes(locationLower) || 
+            (locationLower === 'remote' && a.remote)) scoreA += 3;
+        if (b.location.toLowerCase().includes(locationLower) || 
+            (locationLower === 'remote' && b.remote)) scoreB += 3;
       }
 
       return scoreB - scoreA; // Higher score first
