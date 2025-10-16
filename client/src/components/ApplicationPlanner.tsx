@@ -290,7 +290,7 @@ export default function ApplicationPlanner({ job, isOpen, onClose, onApply }: Ap
                      job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
                      job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
                      job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
-                     `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${job.title} ${job.company} internship`)}&location=Singapore&f_TPR=r86400&f_JT=I&f_E=2`)
+                     `https://www.google.com/search?q=${encodeURIComponent(`${job.title} ${job.company} internship singapore`)}`)
                   window.open(url, '_blank')
                 }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

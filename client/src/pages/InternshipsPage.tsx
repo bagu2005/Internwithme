@@ -543,26 +543,16 @@ export default function InternshipsPage() {
                              job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
                              job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
                              job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
-                             `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`)
+                             `https://www.google.com/search?q=${encodeURIComponent(`${job.title} ${job.company} internship singapore`)}`)
                           window.open(url, '_blank')
                         }}
-                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                        className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                       >
-                        Company
-                      </button>
-                      <button
-                        onClick={() => {
-                          const searchQuery = `${job.title} ${job.company} internship`
-                          const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchQuery)}&location=Singapore&f_TPR=r86400&f_JT=I&f_E=2`
-                          window.open(linkedinUrl, '_blank')
-                        }}
-                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                      >
-                        LinkedIn
+                        View Original
                       </button>
                       <Link
                         to={`/jobs/${job.id}`}
-                        className="flex-1 min-w-[100px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center"
+                        className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center"
                       >
                         View Details
                       </Link>

@@ -3497,11 +3497,9 @@ class JobScrapingService {
     } else if (company.includes('Remote') || company.includes('remote')) {
       return remoteUrls[Math.floor(Math.random() * remoteUrls.length)]
     } else {
-      // Better fallback - use LinkedIn Jobs with more specific search
-      const searchQuery = `${title} ${company} internship`
-      const jobTitle = encodeURIComponent(searchQuery)
-      const location = encodeURIComponent('Singapore')
-      return `https://www.linkedin.com/jobs/search/?keywords=${jobTitle}&location=${location}&f_TPR=r86400&f_JT=I&f_E=2`
+      // Better fallback - use Google search for job postings
+      const searchQuery = `${title} ${company} internship singapore`
+      return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`
     }
   }
 }

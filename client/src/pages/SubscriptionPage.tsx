@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Check, Crown, Star, Zap, CreditCard, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { stripeService } from '../services/stripeService';
 
 const SubscriptionPage: React.FC = () => {
   const { user } = useAuth();
@@ -18,33 +19,38 @@ const SubscriptionPage: React.FC = () => {
 
   const loadSubscriptionData = async () => {
     try {
-      // Demo subscription plans
-      const demoPlans = [
-        {
-          id: 'free',
-          name: 'Free',
-          price: 0,
-          features: ['Browse jobs', 'Basic filtering', 'Apply to jobs'],
-          limits: { applications: 5, searches: 10 }
-        },
-        {
-          id: 'premium',
-          name: 'Premium',
-          price: 9.99,
-          features: ['Unlimited applications', 'Advanced filtering', 'Priority support', 'Resume builder'],
-          limits: { applications: -1, searches: -1 }
-        }
-      ];
-      
-      setPlans(demoPlans);
-      setCurrentSubscription({ 
-        plan: { id: 'free', name: 'Free', price: 0 },
-        status: 'active',
-        current_period_end: null
-      });
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      // Load subscription plans
+      const subscriptionPlans = stripeService.getPlans();
+      setPlans(subscriptionPlans);
+
+      // Load current subscription
+      const subscription = await stripeService.getCurrentSubscription(user.id);
+      if (subscription) {
+        const plan = subscriptionPlans.find(p => p.id === subscription.plan_id);
+        setCurrentSubscription({
+          plan: plan || { id: 'free', name: 'Free', price: 0 },
+          status: subscription.status,
+          current_period_end: subscription.current_period_end
+        });
+      } else {
+        // Default to free plan
+        setCurrentSubscription({
+          plan: { id: 'free', name: 'Free', price: 0 },
+          status: 'active',
+          current_period_end: null
+        });
+      }
+
+      // Load usage data (demo for now)
       setUsage({ applications: 2, searches: 5 });
     } catch (error) {
       console.error('Error loading subscription data:', error);
+      toast.error('Failed to load subscription data');
     } finally {
       setLoading(false);
     }
