@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, WifiOff, ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react'
 import { jobService } from '../services/supabase'
 import { realTimeService } from '../services/realTimeService'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '../hooks/useAuth'
+import AdvancedFilters from '../components/AdvancedFilters'
 
 // Job interface
 interface Job {
@@ -24,6 +25,26 @@ interface Job {
   applicationDeadline?: string;
 }
 
+// Filter interface
+interface FilterState {
+  salaryRange: [number, number]
+  companySize: string
+  workArrangement: string
+  applicationDeadline: string
+  experienceLevel: string
+  industry: string
+  skills: string[]
+  location: string
+}
+
+// Application tracking interface
+interface Application {
+  jobId: string
+  status: 'saved' | 'applied' | 'interview' | 'offer' | 'rejected'
+  appliedDate?: string
+  notes?: string
+}
+
 export default function InternshipsPage() {
   const { user } = useAuth()
   const [jobs, setJobs] = useState<Job[]>([])
@@ -40,6 +61,23 @@ export default function InternshipsPage() {
     location: '',
     experience: 'internship'
   })
+  
+  // Advanced filters state
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
+    salaryRange: [0, 10000],
+    companySize: '',
+    workArrangement: '',
+    applicationDeadline: '',
+    experienceLevel: '',
+    industry: '',
+    skills: [],
+    location: ''
+  })
+  
+  // Application tracking state
+  const [applications, setApplications] = useState<Map<string, Application>>(new Map())
+  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
 
   // Get user preferences from profile (for now, use demo data)
   const getUserPreferences = () => {
@@ -51,6 +89,59 @@ export default function InternshipsPage() {
       location: '',
       experience: 'internship'
     }
+  }
+
+  // Application tracking functions
+  const saveJob = (jobId: string) => {
+    const newSavedJobs = new Set(savedJobs)
+    if (newSavedJobs.has(jobId)) {
+      newSavedJobs.delete(jobId)
+      toast.success('Job removed from saved')
+    } else {
+      newSavedJobs.add(jobId)
+      toast.success('Job saved!')
+    }
+    setSavedJobs(newSavedJobs)
+  }
+
+  const applyToJob = (job: Job) => {
+    const newApplications = new Map(applications)
+    newApplications.set(job.id, {
+      jobId: job.id,
+      status: 'applied',
+      appliedDate: new Date().toISOString(),
+      notes: ''
+    })
+    setApplications(newApplications)
+    toast.success(`Applied to ${job.title} at ${job.company}`)
+  }
+
+  const updateApplicationStatus = (jobId: string, status: Application['status']) => {
+    const newApplications = new Map(applications)
+    const currentApp = newApplications.get(jobId)
+    if (currentApp) {
+      newApplications.set(jobId, { ...currentApp, status })
+      setApplications(newApplications)
+      toast.success(`Application status updated to ${status}`)
+    }
+  }
+
+  // Extract salary from job description for filtering
+  const extractSalary = (job: Job): number => {
+    if (!job.salary) return 0
+    const match = job.salary.match(/\$?(\d+(?:,\d{3})*)/)
+    return match ? parseInt(match[1].replace(/,/g, '')) : 0
+  }
+
+  // Determine company size based on company name (simplified logic)
+  const getCompanySize = (company: string): string => {
+    const largeCompanies = ['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'DBS', 'OCBC', 'UOB', 'Singtel', 'StarHub']
+    const mediumCompanies = ['Shopee', 'Grab', 'Sea Limited', 'Razer', 'Ninja Van', 'Carousell']
+    
+    if (largeCompanies.some(name => company.includes(name))) return 'large'
+    if (mediumCompanies.some(name => company.includes(name))) return 'medium'
+    if (company.includes('Singapore') || company.includes('GovTech') || company.includes('A*STAR')) return 'large'
+    return 'startup'
   }
 
   // Connect to real-time service and fetch jobs
@@ -123,13 +214,42 @@ export default function InternshipsPage() {
 
 
   const filteredJobs = jobs.filter(job => {
+    // Basic filters
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = !selectedType || job.type === selectedType
     const matchesRemote = !showRemoteOnly || job.remote
 
-    return matchesSearch && matchesType && matchesRemote
+    // Advanced filters
+    const jobSalary = extractSalary(job)
+    const matchesSalary = jobSalary >= filters.salaryRange[0] && jobSalary <= filters.salaryRange[1]
+    
+    const companySize = getCompanySize(job.company)
+    const matchesCompanySize = !filters.companySize || companySize === filters.companySize
+    
+    const matchesWorkArrangement = !filters.workArrangement || 
+      (filters.workArrangement === 'remote' && job.remote) ||
+      (filters.workArrangement === 'onsite' && !job.remote) ||
+      (filters.workArrangement === 'hybrid' && job.location.toLowerCase().includes('hybrid'))
+    
+    const matchesIndustry = !filters.industry || 
+      job.title.toLowerCase().includes(filters.industry) ||
+      job.description.toLowerCase().includes(filters.industry) ||
+      job.company.toLowerCase().includes(filters.industry)
+    
+    const matchesSkills = filters.skills.length === 0 || 
+      filters.skills.some(skill => 
+        job.requirements?.some(req => req.toLowerCase().includes(skill.toLowerCase())) ||
+        job.description.toLowerCase().includes(skill.toLowerCase())
+      )
+    
+    const matchesLocation = !filters.location || 
+      job.location.toLowerCase().includes(filters.location.toLowerCase())
+
+    return matchesSearch && matchesType && matchesRemote && 
+           matchesSalary && matchesCompanySize && matchesWorkArrangement &&
+           matchesIndustry && matchesSkills && matchesLocation
   })
 
   const jobTypes = ['internship', 'full-time', 'part-time']
@@ -229,6 +349,13 @@ export default function InternshipsPage() {
               >
                 Remote
               </button>
+              <button
+                onClick={() => setShowAdvancedFilters(true)}
+                className="btn-outline flex items-center"
+              >
+                <Filter className="w-4 h-4 mr-1" />
+                Advanced
+              </button>
             </div>
           </div>
         </div>
@@ -280,6 +407,30 @@ export default function InternshipsPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end space-y-2">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => saveJob(job.id)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            savedJobs.has(job.id)
+                              ? 'bg-primary-100 text-primary-600'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                          title={savedJobs.has(job.id) ? 'Remove from saved' : 'Save job'}
+                        >
+                          {savedJobs.has(job.id) ? (
+                            <BookmarkCheck className="w-4 h-4" />
+                          ) : (
+                            <Bookmark className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => window.open(job.sourceUrl, '_blank')}
+                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                          title="Apply on company website"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </button>
+                      </div>
                       <span className="badge-primary">{job.source}</span>
                       {job.remote && (
                         <span className="badge-secondary">Remote</span>
@@ -288,6 +439,16 @@ export default function InternshipsPage() {
                         <span className="badge-success">Paid</span>
                       ) : (
                         <span className="badge-warning">Salary not specified</span>
+                      )}
+                      {applications.has(job.id) && (
+                        <span className={`badge ${
+                          applications.get(job.id)?.status === 'applied' ? 'badge-info' :
+                          applications.get(job.id)?.status === 'interview' ? 'badge-warning' :
+                          applications.get(job.id)?.status === 'offer' ? 'badge-success' :
+                          'badge-error'
+                        }`}>
+                          {applications.get(job.id)?.status}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -310,12 +471,22 @@ export default function InternshipsPage() {
                       )}
                     </div>
                     
-                    <Link
-                      to={`/jobs/${job.id}`}
-                      className="btn-outline"
-                    >
-                      View Details
-                    </Link>
+                    <div className="flex space-x-2">
+                      {!applications.has(job.id) && (
+                        <button
+                          onClick={() => applyToJob(job)}
+                          className="btn-primary"
+                        >
+                          Apply Now
+                        </button>
+                      )}
+                      <Link
+                        to={`/jobs/${job.id}`}
+                        className="btn-outline"
+                      >
+                        View Details
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))
@@ -324,6 +495,29 @@ export default function InternshipsPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Application Tracker */}
+            <div className="card p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Tracker</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Saved Jobs</span>
+                  <span className="font-medium">{savedJobs.size}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Applied</span>
+                  <span className="font-medium">{Array.from(applications.values()).filter(app => app.status === 'applied').length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Interviews</span>
+                  <span className="font-medium">{Array.from(applications.values()).filter(app => app.status === 'interview').length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Offers</span>
+                  <span className="font-medium">{Array.from(applications.values()).filter(app => app.status === 'offer').length}</span>
+                </div>
+              </div>
+            </div>
+
             {/* Quick Stats */}
             <div className="card p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
@@ -339,6 +533,10 @@ export default function InternshipsPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Remote Positions</span>
                   <span className="font-medium">{stats.remote}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Filtered Results</span>
+                  <span className="font-medium">{filteredJobs.length}</span>
                 </div>
               </div>
             </div>
@@ -362,9 +560,64 @@ export default function InternshipsPage() {
                 ))}
               </div>
             </div>
+
+            {/* Active Filters */}
+            {(filters.salaryRange[0] > 0 || filters.salaryRange[1] < 10000 || 
+              filters.companySize || filters.workArrangement || filters.industry || 
+              filters.skills.length > 0 || filters.location) && (
+              <div className="card p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Active Filters</h3>
+                <div className="space-y-2">
+                  {filters.salaryRange[0] > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Salary</span>
+                      <span className="text-sm font-medium">S${filters.salaryRange[0]} - S${filters.salaryRange[1]}</span>
+                    </div>
+                  )}
+                  {filters.companySize && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Company Size</span>
+                      <span className="text-sm font-medium capitalize">{filters.companySize}</span>
+                    </div>
+                  )}
+                  {filters.workArrangement && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Work Type</span>
+                      <span className="text-sm font-medium capitalize">{filters.workArrangement}</span>
+                    </div>
+                  )}
+                  {filters.industry && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Industry</span>
+                      <span className="text-sm font-medium capitalize">{filters.industry}</span>
+                    </div>
+                  )}
+                  {filters.skills.length > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Skills</span>
+                      <span className="text-sm font-medium">{filters.skills.length} selected</span>
+                    </div>
+                  )}
+                  {filters.location && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Location</span>
+                      <span className="text-sm font-medium">{filters.location}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Advanced Filters Modal */}
+      <AdvancedFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        isOpen={showAdvancedFilters}
+      />
     </div>
   )
 }

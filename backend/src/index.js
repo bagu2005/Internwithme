@@ -118,27 +118,50 @@ app.post('/api/jobs/scrape', async (req, res) => {
   }
 });
 
-// Scheduled job scraping (every 30 minutes)
-cron.schedule('*/30 * * * *', async () => {
-  console.log('Running scheduled job scraping...');
+// Clear all jobs from database
+app.delete('/api/jobs/clear', async (req, res) => {
+  try {
+    await supabaseService.clearJobs();
+    res.json({ success: true, message: 'All jobs cleared from database' });
+  } catch (error) {
+    console.error('Error clearing jobs:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// MASSIVE real-time job scraping (every 30 seconds)
+cron.schedule('*/30 * * * * *', async () => {
+  console.log('🚀 Running MASSIVE real-time job scraping...');
   try {
     const newJobs = await jobScrapingService.scrapeAllJobs();
     if (newJobs.length > 0) {
       await supabaseService.addJobs(newJobs);
-      console.log(`Added ${newJobs.length} new jobs to database`);
+      console.log(`✅ Added ${newJobs.length} new jobs to database`);
       
-      // Notify connected clients
-      io.emit('new_jobs_available', { count: newJobs.length });
+      // Notify connected clients with full job data
+      io.emit('new_jobs', { count: newJobs.length, jobs: newJobs });
     }
   } catch (error) {
-    console.error('Scheduled scraping failed:', error);
+    console.error('❌ Scheduled scraping failed:', error);
   }
 });
 
 const PORT = process.env.PORT || 5001;
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`🚀 Job scraping backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🌍 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  
+  // Initial job scraping to populate database immediately
+  console.log('🎯 Running initial job scraping to populate database...');
+  try {
+    const initialJobs = await jobScrapingService.scrapeAllJobs();
+    if (initialJobs.length > 0) {
+      await supabaseService.addJobs(initialJobs);
+      console.log(`✅ Initial scraping complete: ${initialJobs.length} jobs added to database`);
+    }
+  } catch (error) {
+    console.error('❌ Initial scraping failed:', error);
+  }
 });

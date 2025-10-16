@@ -53,21 +53,11 @@ class SupabaseService {
         return [];
       }
 
-      // Check for existing jobs to avoid duplicates
-      const existingJobs = await this.getJobs();
-      const existingUrls = new Set(existingJobs.map(job => job.source_url));
-      
-      // Filter out duplicate jobs
-      const newJobs = jobs.filter(job => !existingUrls.has(job.source_url));
-      
-      if (newJobs.length === 0) {
-        console.log('No new jobs to add (all duplicates)');
-        return [];
-      }
+      console.log(`Attempting to add ${jobs.length} jobs to database...`);
 
       const { data, error } = await this.supabase
         .from('job_postings')
-        .insert(newJobs)
+        .insert(jobs)
         .select();
 
       if (error) {
@@ -75,7 +65,7 @@ class SupabaseService {
         throw error;
       }
 
-      console.log(`Added ${data.length} new jobs to database`);
+      console.log(`✅ Successfully added ${data.length} jobs to database`);
       return data;
     } catch (error) {
       console.error('Error in addJobs:', error);
@@ -176,6 +166,26 @@ class SupabaseService {
     } catch (error) {
       console.error('Error in deleteJob:', error);
       return false;
+    }
+  }
+
+  async clearJobs() {
+    try {
+      const { error } = await this.supabase
+        .from('job_postings')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
+
+      if (error) {
+        console.error('Error clearing jobs:', error);
+        throw error;
+      }
+
+      console.log('All jobs cleared from database');
+      return true;
+    } catch (error) {
+      console.error('Error in clearJobs:', error);
+      throw error;
     }
   }
 }
