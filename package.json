@@ -11,10 +11,18 @@
     "start": "cd server && npm start",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install"
   },
-  "keywords": ["internship", "jobs", "interns", "career"],
+  "keywords": [
+    "internship",
+    "jobs",
+    "interns",
+    "career"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0"
   }
 }

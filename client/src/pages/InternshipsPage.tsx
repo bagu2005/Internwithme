@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, MapPin, Clock, DollarSign, Building, Filter } from 'lucide-react'
-import { jobApi } from '../services/api'
+import { jobService } from '../services/supabase'
 
 // Job interface
 interface Job {
@@ -24,19 +24,24 @@ interface Job {
 export default function InternshipsPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({ total: 0, internships: 0, remote: 0, paid: 0 })
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedType, setSelectedType] = useState('')
   const [showRemoteOnly, setShowRemoteOnly] = useState(false)
 
-  // Fetch jobs on component mount
+  // Fetch jobs and stats on component mount
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await jobApi.getJobs()
-        setJobs(response.data.data.jobs || [])
+        const [jobs, jobStats] = await Promise.all([
+          jobService.getJobs(),
+          jobService.getJobStats()
+        ])
+        setJobs(jobs || [])
+        setStats(jobStats)
       } catch (error) {
-        console.error('Failed to fetch jobs:', error)
+        console.error('Failed to fetch data:', error)
         // Fallback to empty array if API fails
         setJobs([])
       } finally {
@@ -44,7 +49,7 @@ export default function InternshipsPage() {
       }
     }
 
-    fetchJobs()
+    fetchData()
   }, [])
 
   const filteredJobs = jobs.filter(job => {
@@ -212,19 +217,15 @@ export default function InternshipsPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Jobs</span>
-                  <span className="font-medium">{jobs.length}</span>
+                  <span className="font-medium">{stats.total}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Paid Positions</span>
-                  <span className="font-medium">
-                    {jobs.filter(j => j.salary).length}
-                  </span>
+                  <span className="font-medium">{stats.paid}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Remote Positions</span>
-                  <span className="font-medium">
-                    {jobs.filter(j => j.remote).length}
-                  </span>
+                  <span className="font-medium">{stats.remote}</span>
                 </div>
               </div>
             </div>
