@@ -42,8 +42,10 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      await authService.signInWithGoogle();
-      // Redirect will occur; this line may not run
+      console.log('Starting Google sign-in...');
+      const result = await authService.signInWithGoogle();
+      console.log('Google sign-in result:', result);
+      toast.success('Google sign-in initiated! Check your browser for popup.');
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed. Please try again.');
