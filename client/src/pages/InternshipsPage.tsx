@@ -349,13 +349,13 @@ export default function InternshipsPage() {
               >
                 Remote
               </button>
-              <button
-                onClick={() => setShowAdvancedFilters(true)}
-                className="btn-outline flex items-center"
-              >
-                <Filter className="w-4 h-4 mr-1" />
-                Advanced
-              </button>
+                <button
+                  onClick={() => setShowAdvancedFilters(true)}
+                  className="btn-outline flex items-center"
+                >
+                  <Filter className="w-4 h-4 mr-1" />
+                  Advanced Filters
+                </button>
             </div>
           </div>
         </div>
