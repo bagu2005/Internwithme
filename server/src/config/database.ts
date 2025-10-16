@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { migrateToJobAggregation } from './migration';
 
 dotenv.config();
 
@@ -262,6 +263,10 @@ const initializeTables = async (): Promise<void> => {
     `);
 
     console.log('✅ Database tables initialized successfully');
+    
+    // Run migration to job aggregation platform
+    await migrateToJobAggregation();
+    
   } catch (error) {
     console.error('❌ Error initializing database tables:', error);
     throw error;

@@ -15,7 +15,6 @@ interface RegisterForm {
   email: string
   password: string
   confirmPassword: string
-  role: 'intern' | 'company'
 }
 
 export default function RegisterPage() {
@@ -42,7 +41,7 @@ export default function RegisterPage() {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        role: data.role,
+        role: 'intern', // All users are job seekers in the aggregation platform
       })
       // Redirect to OTP verification page
       navigate('/verify-otp', { state: { email: data.email } })
@@ -169,53 +168,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                I am a
-              </label>
-              <div className="mt-1 grid grid-cols-2 gap-4">
-                <label className="relative">
-                  <input
-                    {...register('role', { required: 'Please select your role' })}
-                    type="radio"
-                    value="intern"
-                    className="sr-only"
-                  />
-                  <div className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                    watch('role') === 'intern' 
-                      ? 'border-primary-500 bg-primary-50' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-900">Student/Intern</div>
-                      <div className="text-sm text-gray-500">Looking for opportunities</div>
-                    </div>
-                  </div>
-                </label>
-                
-                <label className="relative">
-                  <input
-                    {...register('role', { required: 'Please select your role' })}
-                    type="radio"
-                    value="company"
-                    className="sr-only"
-                  />
-                  <div className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                    watch('role') === 'company' 
-                      ? 'border-primary-500 bg-primary-50' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-900">Company</div>
-                      <div className="text-sm text-gray-500">Hiring interns</div>
-                    </div>
-                  </div>
-                </label>
-              </div>
-              {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
-              )}
-            </div>
+            {/* Role selection removed - all users are job seekers in the aggregation platform */}
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
