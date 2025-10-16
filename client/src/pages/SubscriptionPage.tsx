@@ -37,7 +37,11 @@ const SubscriptionPage: React.FC = () => {
       ];
       
       setPlans(demoPlans);
-      setCurrentSubscription({ planId: 'free', status: 'active' });
+      setCurrentSubscription({ 
+        plan: { id: 'free', name: 'Free', price: 0 },
+        status: 'active',
+        current_period_end: null
+      });
       setUsage({ applications: 2, searches: 5 });
     } catch (error) {
       console.error('Error loading subscription data:', error);
@@ -54,8 +58,13 @@ const SubscriptionPage: React.FC = () => {
       }
 
       // Demo upgrade - just show success message
+      const selectedPlan = plans.find(p => p.id === planId);
       toast.success('Subscription upgrade initiated! (Demo mode - no payment processed)');
-      setCurrentSubscription({ planId, status: 'active' });
+      setCurrentSubscription({ 
+        plan: selectedPlan || { id: planId, name: 'Premium', price: 9.99 },
+        status: 'active',
+        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      });
     } catch (error: any) {
       console.error('Error upgrading subscription:', error);
       toast.error('Error upgrading subscription. Please try again.');

@@ -98,23 +98,8 @@ export default function UserVerificationPage() {
   };
 
   const uploadFile = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch('http://localhost:5001/api/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error('File upload failed');
-    }
-
-    const data = await response.json();
-    return data.url;
+    // Demo file upload - return a mock URL
+    return `demo-upload-url-${file.name}`;
   };
 
   const handleSubmit = async () => {

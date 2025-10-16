@@ -8,15 +8,62 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Job-related functions
 export const jobService = {
-  // Get all jobs
+  // Get all jobs with automatic scraping
   async getJobs() {
-    const { data, error } = await supabase
+    // First, try to get existing jobs from database
+    const { data: existingJobs, error } = await supabase
       .from('job_postings')
       .select('*')
       .order('posted_date', { ascending: false })
     
     if (error) throw error
+
+    // If we have less than 5 jobs, automatically scrape new ones
+    if (!existingJobs || existingJobs.length < 5) {
+      console.log('Auto-scraping jobs to populate database...')
+      try {
+        await this.triggerScraping()
+        // Fetch updated jobs after scraping
+        const { data: updatedJobs, error: updateError } = await supabase
+          .from('job_postings')
+          .select('*')
+          .order('posted_date', { ascending: false })
+        
+        if (updateError) throw updateError
+        return updatedJobs || []
+      } catch (scrapeError) {
+        console.error('Auto-scraping failed:', scrapeError)
+        return existingJobs || []
+      }
+    }
+
+    return existingJobs || []
+  },
+
+  // Add new jobs from scraping
+  async addJobs(jobs: any[]) {
+    const { data, error } = await supabase
+      .from('job_postings')
+      .insert(jobs)
+      .select()
+    
+    if (error) throw error
     return data
+  },
+
+  // Trigger job scraping
+  async triggerScraping() {
+    // This would typically call a backend endpoint
+    // For now, we'll handle it on the frontend
+    const { jobScrapingService } = await import('./jobScrapingService');
+    const scrapedJobs = await jobScrapingService.scrapeAllJobs();
+    
+    // Add scraped jobs to database
+    if (scrapedJobs.length > 0) {
+      return await this.addJobs(scrapedJobs);
+    }
+    
+    return [];
   },
 
   // Get job by ID

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, MapPin, Clock, DollarSign, Building, Filter } from 'lucide-react'
+import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw } from 'lucide-react'
 import { jobService } from '../services/supabase'
+import { toast } from 'react-hot-toast'
 
 // Job interface
 interface Job {
@@ -51,6 +52,7 @@ export default function InternshipsPage() {
 
     fetchData()
   }, [])
+
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
