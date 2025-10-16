@@ -3459,37 +3459,36 @@ class JobScrapingService {
   // Generate realistic job URLs based on company
   generateJobURL(company, title) {
     const companyUrls = {
-      'Google Singapore': 'https://careers.google.com/jobs/results/?location=Singapore&q=intern',
-      'Microsoft Singapore': 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore',
-      'Amazon Singapore': 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore',
-      'Grab': 'https://grab.careers/jobs/',
-      'Sea Limited': 'https://careers.sea.com/jobs/',
-      'Shopee': 'https://careers.shopee.sg/jobs/',
-      'DBS Bank': 'https://www.dbs.com/careers/default.page',
-      'OCBC Bank': 'https://www.ocbc.com/group/careers/',
-      'UOB Bank': 'https://www.uobgroup.com/uobgroup/careers/',
-      'GovTech Singapore': 'https://www.tech.gov.sg/careers/',
-      'Enterprise Singapore': 'https://www.enterprisesg.gov.sg/careers',
-      'A*STAR': 'https://www.a-star.edu.sg/careers',
-      'Carousell': 'https://careers.carousell.com/',
-      '99.co': 'https://99.co/singapore/careers',
-      'Ninja Van': 'https://www.ninjavan.co/en-sg/careers',
-      'McKinsey Singapore': 'https://www.mckinsey.com/careers/search-jobs',
-      'PwC Singapore': 'https://www.pwc.com/sg/en/careers.html',
-      'Allen & Gledhill': 'https://www.allenandgledhill.com/careers/',
-      'National University Hospital': 'https://www.nuh.com.sg/careers/',
-      'Design Studio SG': 'https://designstudio.sg/careers/',
-      'Digital Agency Singapore': 'https://digitalagency.sg/careers/',
-      'Honestbee': 'https://honestbee.com/careers'
+      'Google Singapore': `https://careers.google.com/jobs/results/?location=Singapore&q=${encodeURIComponent(title)}`,
+      'Microsoft Singapore': `https://careers.microsoft.com/us/en/search-results?keywords=${encodeURIComponent(title)}&location=singapore`,
+      'Amazon Singapore': `https://www.amazon.jobs/en/search?base_query=${encodeURIComponent(title)}&loc_query=singapore`,
+      'Grab': `https://grab.careers/jobs/?search=${encodeURIComponent(title)}`,
+      'Sea Limited': `https://careers.sea.com/jobs/?search=${encodeURIComponent(title)}`,
+      'Shopee': `https://careers.shopee.sg/jobs/?search=${encodeURIComponent(title)}`,
+      'DBS Bank': `https://www.dbs.com/careers/default.page?search=${encodeURIComponent(title)}`,
+      'OCBC Bank': `https://www.ocbc.com/group/careers/?search=${encodeURIComponent(title)}`,
+      'UOB Bank': `https://www.uobgroup.com/uobgroup/careers/?search=${encodeURIComponent(title)}`,
+      'GovTech Singapore': `https://www.tech.gov.sg/careers/?search=${encodeURIComponent(title)}`,
+      'Enterprise Singapore': `https://www.enterprisesg.gov.sg/careers?search=${encodeURIComponent(title)}`,
+      'A*STAR': `https://www.a-star.edu.sg/careers?search=${encodeURIComponent(title)}`,
+      'Carousell': `https://careers.carousell.com/?search=${encodeURIComponent(title)}`,
+      '99.co': `https://99.co/singapore/careers?search=${encodeURIComponent(title)}`,
+      'Ninja Van': `https://www.ninjavan.co/en-sg/careers?search=${encodeURIComponent(title)}`,
+      'McKinsey Singapore': `https://www.mckinsey.com/careers/search-jobs?keywords=${encodeURIComponent(title)}`,
+      'PwC Singapore': `https://www.pwc.com/sg/en/careers.html?search=${encodeURIComponent(title)}`,
+      'Allen & Gledhill': `https://www.allenandgledhill.com/careers/?search=${encodeURIComponent(title)}`,
+      'National University Hospital': `https://www.nuh.com.sg/careers/?search=${encodeURIComponent(title)}`,
+      'Design Studio SG': `https://designstudio.sg/careers/?search=${encodeURIComponent(title)}`,
+      'Digital Agency Singapore': `https://digitalagency.sg/careers/?search=${encodeURIComponent(title)}`,
+      'Honestbee': `https://honestbee.com/careers?search=${encodeURIComponent(title)}`
     }
 
     // For remote jobs, use popular remote job boards
     const remoteUrls = [
-      'https://remote.co/remote-jobs/',
-      'https://weworkremotely.com/',
-      'https://flexjobs.com/',
-      'https://angel.co/jobs',
-      'https://www.linkedin.com/jobs/'
+      `https://remote.co/remote-jobs/?search=${encodeURIComponent(title)}`,
+      `https://weworkremotely.com/?search=${encodeURIComponent(title)}`,
+      `https://flexjobs.com/?search=${encodeURIComponent(title)}`,
+      `https://angel.co/jobs?search=${encodeURIComponent(title)}`
     ]
 
     if (companyUrls[company]) {
@@ -3497,9 +3496,9 @@ class JobScrapingService {
     } else if (company.includes('Remote') || company.includes('remote')) {
       return remoteUrls[Math.floor(Math.random() * remoteUrls.length)]
     } else {
-      // Fallback - try to construct company career page URL
+      // Fallback - try to construct company career page URL with job search
       const companySlug = company.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')
-      return `https://${companySlug}.com/careers`
+      return `https://${companySlug}.com/careers?search=${encodeURIComponent(title)}`
     }
   }
 }

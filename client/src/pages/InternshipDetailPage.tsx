@@ -1,49 +1,73 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { MapPin, Clock, DollarSign, Building, Calendar, Users, Send } from 'lucide-react'
+import { MapPin, Clock, DollarSign, Building, Calendar, Users, Send, ExternalLink, ArrowLeft } from 'lucide-react'
 import ApplicationForm from '../components/ApplicationForm'
+import { jobService } from '../services/supabase'
+import toast from 'react-hot-toast'
 
 export default function InternshipDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [showApplicationForm, setShowApplicationForm] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
+  const [internship, setInternship] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Mock data - in real app, fetch from API
-  const internship = {
-    id: '1',
-    title: 'Software Engineering Intern',
-    company: 'TechCorp',
-    location: 'San Francisco, CA',
-    duration: 12,
-    paid: true,
-    compensation: { amount: 25, currency: 'USD', type: 'hourly' },
-    remote: true,
-    category: 'Technology',
-    skills: ['React', 'Node.js', 'TypeScript', 'Python', 'AWS'],
-    description: 'Join our engineering team and work on cutting-edge web applications. You\'ll have the opportunity to work with experienced developers and contribute to real projects that impact millions of users.',
-    requirements: [
-      'Currently enrolled in Computer Science or related field',
-      'Experience with JavaScript and React',
-      'Strong problem-solving skills',
-      'Good communication skills'
-    ],
-    responsibilities: [
-      'Develop and maintain web applications',
-      'Collaborate with cross-functional teams',
-      'Write clean, maintainable code',
-      'Participate in code reviews'
-    ],
-    benefits: [
-      'Mentorship from senior engineers',
-      'Flexible work hours',
-      'Free lunch and snacks',
-      'Networking opportunities'
-    ],
-    startDate: '2024-06-01',
-    endDate: '2024-08-31',
-    applicationDeadline: '2024-05-15',
+  useEffect(() => {
+    if (id) {
+      fetchJobDetails()
+    }
+  }, [id])
+
+  const fetchJobDetails = async () => {
+    try {
+      setLoading(true)
+      const jobs = await jobService.getJobs()
+      const job = jobs.find(j => j.id === id)
+      
+      if (job) {
+        setInternship(job)
+      } else {
+        toast.error('Job not found')
+        navigate('/internships')
+      }
+    } catch (error) {
+      console.error('Error fetching job details:', error)
+      toast.error('Failed to load job details')
+      navigate('/internships')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!internship) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Not Found</h2>
+          <p className="text-gray-600 mb-6">The job you're looking for doesn't exist or has been removed.</p>
+          <button
+            onClick={() => navigate('/internships')}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Browse Jobs
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -101,25 +125,66 @@ export default function InternshipDetailPage() {
             ))}
           </div>
           
-          {user && user.role === 'intern' ? (
-            hasApplied ? (
-              <button className="btn-secondary" disabled>
-                Application Submitted
-              </button>
+          <div className="flex flex-wrap gap-3">
+            {user && user.role === 'intern' ? (
+              hasApplied ? (
+                <button className="btn-secondary" disabled>
+                  Application Submitted
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setShowApplicationForm(true)}
+                  className="btn-primary flex items-center"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Apply Now
+                </button>
+              )
             ) : (
-              <button 
-                onClick={() => setShowApplicationForm(true)}
-                className="btn-primary flex items-center"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Apply Now
+              <button className="btn-secondary" disabled>
+                {user ? 'Companies cannot apply' : 'Login to Apply'}
               </button>
-            )
-          ) : (
-            <button className="btn-secondary" disabled>
-              {user ? 'Companies cannot apply' : 'Login to Apply'}
+            )}
+            
+            <button
+              onClick={() => {
+                const url = internship.sourceUrl || 
+                  (internship.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
+                   internship.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
+                   internship.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
+                   internship.company.includes('Grab') ? 'https://grab.careers/jobs/' :
+                   internship.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
+                   internship.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
+                   internship.company.includes('OCBC') ? 'https://www.ocbc.com/group/careers/' :
+                   internship.company.includes('UOB') ? 'https://www.uobgroup.com/uobgroup/careers/' :
+                   internship.company.includes('GovTech') ? 'https://www.tech.gov.sg/careers/' :
+                   internship.company.includes('Enterprise') ? 'https://www.enterprisesg.gov.sg/careers' :
+                   internship.company.includes('A*STAR') ? 'https://www.a-star.edu.sg/careers' :
+                   internship.company.includes('Carousell') ? 'https://careers.carousell.com/' :
+                   internship.company.includes('99.co') ? 'https://99.co/singapore/careers' :
+                   internship.company.includes('Ninja Van') ? 'https://www.ninjavan.co/en-sg/careers' :
+                   internship.company.includes('McKinsey') ? 'https://www.mckinsey.com/careers/search-jobs' :
+                   internship.company.includes('PwC') ? 'https://www.pwc.com/sg/en/careers.html' :
+                   internship.company.includes('Allen') ? 'https://www.allenandgledhill.com/careers/' :
+                   internship.company.includes('National University Hospital') ? 'https://www.nuh.com.sg/careers/' :
+                   internship.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
+                   `https://${internship.company.toLowerCase().replace(/\s+/g, '')}.com/careers`)
+                window.open(url, '_blank')
+              }}
+              className="btn-outline flex items-center"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              View Original
             </button>
-          )}
+            
+            <button
+              onClick={() => navigate('/internships')}
+              className="btn-outline flex items-center"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Jobs
+            </button>
+          </div>
         </div>
 
         {/* Content */}
