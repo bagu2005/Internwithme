@@ -4,7 +4,7 @@
 
 ### Frontend Variables:
 ```bash
-VITE_API_URL=https://server-3h393zhol-bagu2005s-projects.vercel.app/api
+VITE_API_URL=https://internwithme-production.up.railway.app/api
 VITE_GOOGLE_CLIENT_ID=89067507887-db174hug6dhocq6109ra6el9klgpocgf.apps.googleusercontent.com
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_51SIRkE5Dx64lk8lngh2tqC699BWoPhVq4eWGxx0fR5l4jsTvpwyjI1S2KjPeA12NWEN3WAIen1fjwQVfEWF23NCE00lHgrm114
 VITE_APP_NAME=InternWithMe

@@ -8,14 +8,11 @@ import VerifyOTPPage from './pages/VerifyOTPPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import UserVerificationPage from './pages/UserVerificationPage'
-import CompanyVerificationPage from './pages/CompanyVerificationPage'
 import AdminVerificationPage from './pages/AdminVerificationPage'
 import InternshipsPage from './pages/InternshipsPage'
 import InternshipDetailPage from './pages/InternshipDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import ApplicationsPage from './pages/ApplicationsPage'
-import CreateInternshipPage from './pages/CreateInternshipPage'
-import CompanyDashboardPage from './pages/CompanyDashboardPage'
 import SubscriptionPage from './pages/SubscriptionPage'
 import ContactPage from './pages/ContactPage'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -41,6 +38,8 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOTPPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/jobs" element={<InternshipsPage />} />
+        <Route path="/jobs/:id" element={<InternshipDetailPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/internships/:id" element={<InternshipDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
@@ -55,17 +54,6 @@ function App() {
                    {/* Verification routes */}
                    {user.role === 'intern' && (
                      <Route path="/verification" element={<UserVerificationPage />} />
-                   )}
-                   {user.role === 'company' && (
-                     <Route path="/verification" element={<CompanyVerificationPage />} />
-                   )}
-
-                   {/* Company routes */}
-                   {user.role === 'company' && (
-                     <>
-                       <Route path="/dashboard" element={<CompanyDashboardPage />} />
-                       <Route path="/create-internship" element={<CreateInternshipPage />} />
-                     </>
                    )}
 
                    {/* Admin routes */}

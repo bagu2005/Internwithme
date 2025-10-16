@@ -139,28 +139,23 @@ const initializeTables = async (): Promise<void> => {
       )
     `);
 
-    // Create internships table
+    // Create job_postings table (replaces internships table)
     await client.query(`
-      CREATE TABLE IF NOT EXISTS internships (
+      CREATE TABLE IF NOT EXISTS job_postings (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        company_id UUID REFERENCES users(id) ON DELETE CASCADE,
         title VARCHAR(200) NOT NULL,
+        company VARCHAR(200) NOT NULL,
+        location VARCHAR(200) NOT NULL,
         description TEXT NOT NULL,
         requirements TEXT[],
-        responsibilities TEXT[],
         benefits TEXT[],
-        duration INTEGER NOT NULL,
-        start_date DATE NOT NULL,
-        end_date DATE NOT NULL,
-        location VARCHAR(200) NOT NULL,
+        salary VARCHAR(100),
+        type VARCHAR(20) CHECK (type IN ('internship', 'full-time', 'part-time')) DEFAULT 'internship',
         remote BOOLEAN DEFAULT FALSE,
-        paid BOOLEAN DEFAULT FALSE,
-        compensation_amount DECIMAL(10,2),
-        compensation_currency VARCHAR(3) DEFAULT 'USD',
-        compensation_type VARCHAR(20) CHECK (compensation_type IN ('hourly', 'monthly', 'stipend')),
-        category VARCHAR(100),
-        skills TEXT[],
-        application_deadline DATE NOT NULL,
+        source VARCHAR(50) NOT NULL,
+        source_url VARCHAR(500) UNIQUE NOT NULL,
+        posted_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        application_deadline TIMESTAMP,
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -171,25 +166,25 @@ const initializeTables = async (): Promise<void> => {
     await client.query(`
       CREATE TABLE IF NOT EXISTS applications (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        intern_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        internship_id UUID REFERENCES internships(id) ON DELETE CASCADE,
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        job_posting_id UUID REFERENCES job_postings(id) ON DELETE CASCADE,
         status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'accepted', 'rejected')),
         cover_letter TEXT,
         resume_url VARCHAR(500),
         applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         reviewed_at TIMESTAMP,
         notes TEXT,
-        UNIQUE(intern_id, internship_id)
+        UNIQUE(user_id, job_posting_id)
       )
     `);
 
-    // Create reviews table
+    // Create reviews table (simplified for job aggregation)
     await client.query(`
       CREATE TABLE IF NOT EXISTS reviews (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        intern_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        company_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        internship_id UUID REFERENCES internships(id) ON DELETE SET NULL,
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company VARCHAR(200) NOT NULL,
+        job_posting_id UUID REFERENCES job_postings(id) ON DELETE SET NULL,
         rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
         title VARCHAR(200) NOT NULL,
         content TEXT NOT NULL,
@@ -248,17 +243,17 @@ const initializeTables = async (): Promise<void> => {
 
     // Create indexes for better performance
     await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_internships_company_id ON internships(company_id);
-      CREATE INDEX IF NOT EXISTS idx_internships_is_active ON internships(is_active);
-      CREATE INDEX IF NOT EXISTS idx_internships_category ON internships(category);
-      CREATE INDEX IF NOT EXISTS idx_internships_location ON internships(location);
-      CREATE INDEX IF NOT EXISTS idx_internships_paid ON internships(paid);
-      CREATE INDEX IF NOT EXISTS idx_internships_remote ON internships(remote);
-      CREATE INDEX IF NOT EXISTS idx_applications_intern_id ON applications(intern_id);
-      CREATE INDEX IF NOT EXISTS idx_applications_internship_id ON applications(internship_id);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_company ON job_postings(company);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_is_active ON job_postings(is_active);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_type ON job_postings(type);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_location ON job_postings(location);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_remote ON job_postings(remote);
+      CREATE INDEX IF NOT EXISTS idx_job_postings_source ON job_postings(source);
+      CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);
+      CREATE INDEX IF NOT EXISTS idx_applications_job_posting_id ON applications(job_posting_id);
       CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
-      CREATE INDEX IF NOT EXISTS idx_reviews_company_id ON reviews(company_id);
-      CREATE INDEX IF NOT EXISTS idx_reviews_intern_id ON reviews(intern_id);
+      CREATE INDEX IF NOT EXISTS idx_reviews_company ON reviews(company);
+      CREATE INDEX IF NOT EXISTS idx_reviews_user_id ON reviews(user_id);
       CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
       CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
       CREATE INDEX IF NOT EXISTS idx_subscription_features_user_id ON subscription_features(user_id);

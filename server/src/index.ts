@@ -10,7 +10,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
-import internshipRoutes from './routes/internships';
+import jobRoutes from './routes/jobs';
 import applicationRoutes from './routes/applications';
 import reviewRoutes from './routes/reviews';
 import verificationRoutes from './routes/verification';
@@ -76,7 +76,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/internships', internshipRoutes);
+app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/verification', verificationRoutes);
