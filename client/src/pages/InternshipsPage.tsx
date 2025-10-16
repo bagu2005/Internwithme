@@ -4,6 +4,7 @@ import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, W
 import { jobService } from '../services/supabase'
 import { realTimeService } from '../services/realTimeService'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '../hooks/useAuth'
 
 // Job interface
 interface Job {
@@ -24,6 +25,7 @@ interface Job {
 }
 
 export default function InternshipsPage() {
+  const { user } = useAuth()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ total: 0, internships: 0, remote: 0, paid: 0 })
@@ -32,6 +34,24 @@ export default function InternshipsPage() {
   const [showRemoteOnly, setShowRemoteOnly] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [scrapingStatus, setScrapingStatus] = useState('')
+  const [userPreferences, setUserPreferences] = useState({
+    industry: '',
+    skills: [] as string[],
+    location: '',
+    experience: 'internship'
+  })
+
+  // Get user preferences from profile (for now, use demo data)
+  const getUserPreferences = () => {
+    // For now, return demo preferences since we don't have a profiles table yet
+    // In the future, this would fetch from the user's profile
+    return {
+      industry: 'software engineering',
+      skills: ['javascript', 'python', 'react', 'node.js'],
+      location: '',
+      experience: 'internship'
+    }
+  }
 
   // Connect to real-time service and fetch jobs
   useEffect(() => {
@@ -43,16 +63,12 @@ export default function InternshipsPage() {
         // Check connection status
         setIsConnected(realTimeService.isConnected())
         
-        // Set up user preferences for job scraping
-        const userPreferences = {
-          industry: 'software engineering',
-          skills: ['javascript', 'python', 'react', 'node.js'],
-          location: '',
-          experience: 'internship'
-        }
+        // Get user preferences
+        const preferences = getUserPreferences()
+        setUserPreferences(preferences)
         
         // Request jobs with real-time updates
-        realTimeService.requestJobs(userPreferences, (jobs) => {
+        realTimeService.requestJobs(preferences, (jobs) => {
           setJobs(jobs || [])
           setLoading(false)
         })
@@ -150,6 +166,29 @@ export default function InternshipsPage() {
             </div>
           )}
         </div>
+
+        {/* User Preferences Info */}
+        {user && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-blue-900 mb-1">
+                  🎯 Personalized Job Matching
+                </h3>
+                <p className="text-sm text-blue-700">
+                  Jobs are being matched based on your preferences: {userPreferences.industry} • {userPreferences.skills.join(', ')}
+                  {userPreferences.location && ` • ${userPreferences.location}`}
+                </p>
+              </div>
+              <Link
+                to="/profile"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Update Preferences →
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">

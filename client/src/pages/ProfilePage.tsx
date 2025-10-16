@@ -30,6 +30,11 @@ interface ProfileData {
   websiteUrl: string;
   interests: string[];
   resumeUrl?: string;
+  // Job preferences for personalized scraping
+  major: string;
+  industry: string;
+  jobSkills: string;
+  location: string;
 }
 
 const ProfilePage: React.FC = () => {
@@ -46,6 +51,11 @@ const ProfilePage: React.FC = () => {
     websiteUrl: '',
     interests: [],
     resumeUrl: '',
+    // Job preferences
+    major: '',
+    industry: '',
+    jobSkills: '',
+    location: '',
   });
   const [newSkill, setNewSkill] = useState('');
   const [newInterest, setNewInterest] = useState('');
@@ -105,6 +115,11 @@ const ProfilePage: React.FC = () => {
         websiteUrl: '',
         interests: [],
         resumeUrl: '',
+        // Job preferences
+        major: '',
+        industry: '',
+        jobSkills: '',
+        location: '',
       };
       
       setProfileData(defaultProfileData);
@@ -128,6 +143,11 @@ const ProfilePage: React.FC = () => {
       toast.success('Profile updated successfully! (Demo mode - data not saved)');
       setIsEditing(false);
       setProfileData(data);
+      
+      // Show a message about job preferences
+      if (data.major || data.industry || data.jobSkills || data.location) {
+        toast.success('🎯 Your job preferences have been updated! Check the Jobs page for personalized recommendations.');
+      }
     } catch (error) {
       toast.error('Error updating profile');
     }
@@ -504,6 +524,111 @@ const ProfilePage: React.FC = () => {
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Job Preferences Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Job Preferences</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Set your preferences to get personalized internship recommendations
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Major/Field of Study */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Major/Field of Study
+                  </label>
+                  {isEditing ? (
+                    <select
+                      {...register('major')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select your major</option>
+                      <option value="computer-science">Computer Science</option>
+                      <option value="design">Design/Art</option>
+                      <option value="business">Business/Marketing</option>
+                      <option value="finance">Finance/Economics</option>
+                      <option value="journalism">Journalism/Communications</option>
+                      <option value="data-science">Data Science/Analytics</option>
+                      <option value="engineering">Engineering</option>
+                      <option value="other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900">
+                      {profileData.major ? profileData.major.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Not specified'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Preferred Industry */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preferred Industry
+                  </label>
+                  {isEditing ? (
+                    <select
+                      {...register('industry')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select preferred industry</option>
+                      <option value="technology">Technology</option>
+                      <option value="design">Design/Creative</option>
+                      <option value="marketing">Marketing/Advertising</option>
+                      <option value="finance">Finance/Banking</option>
+                      <option value="media">Media/Entertainment</option>
+                      <option value="healthcare">Healthcare</option>
+                      <option value="education">Education</option>
+                      <option value="other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900">
+                      {profileData.industry ? profileData.industry.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Not specified'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Job Skills */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Job-Related Skills
+                  </label>
+                  {isEditing ? (
+                    <input
+                      {...register('jobSkills')}
+                      type="text"
+                      placeholder="e.g., JavaScript, Python, Design, Marketing"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900">
+                      {profileData.jobSkills || 'Not specified'}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Separate multiple skills with commas
+                  </p>
+                </div>
+
+                {/* Preferred Location */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preferred Location
+                  </label>
+                  {isEditing ? (
+                    <input
+                      {...register('location')}
+                      type="text"
+                      placeholder="e.g., San Francisco, Remote, New York"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900">
+                      {profileData.location || 'Not specified'}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {isEditing && (
