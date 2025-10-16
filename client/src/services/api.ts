@@ -49,4 +49,22 @@ api.interceptors.response.use(
   }
 );
 
+// Job-related API functions
+export const jobApi = {
+  // Get all jobs with filtering
+  getJobs: (params?: any) => api.get('/jobs', { params }),
+  
+  // Get job by ID
+  getJobById: (id: string) => api.get(`/jobs/${id}`),
+  
+  // Get job recommendations
+  getJobRecommendations: () => api.get('/jobs/recommendations'),
+  
+  // Get job statistics
+  getJobStats: () => api.get('/jobs/stats'),
+  
+  // Trigger job scraping (admin)
+  triggerJobScraping: () => api.post('/jobs/scrape')
+};
+
 export default api;
