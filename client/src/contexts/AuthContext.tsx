@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { authService } from '../services/supabase'
+import { authService, supabase } from '../services/supabase'
 import toast from 'react-hot-toast'
 
 interface AuthContextType {
@@ -35,11 +35,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const initAuth = async () => {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
-        const userData = await authService.getCurrentUser()
-        console.log('AuthContext: User data loaded:', userData)
-        setUser(userData)
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('AuthContext: Initial session:', session)
+        setUser(session?.user || null)
       } catch (error) {
         console.error('Auth initialization error:', error)
       } finally {
@@ -47,7 +48,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    initAuth()
+    getInitialSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('AuthContext: Auth state changed:', event, session?.user?.email)
+        setUser(session?.user || null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -55,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('AuthContext login called:', { email })
       const response = await authService.signIn(email, password)
       console.log('AuthContext login success:', response)
-      setUser(response.user)
+      // Don't manually set user - let onAuthStateChange handle it
       toast.success('Welcome back!')
     } catch (error: any) {
       console.error('AuthContext login error:', error)
