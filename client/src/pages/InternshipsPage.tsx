@@ -533,7 +533,18 @@ export default function InternshipsPage() {
                         </button>
                       )}
                       <button
-                        onClick={() => window.open(job.sourceUrl || `https://indeed.com/viewjob?jk=${job.id}`, '_blank')}
+                        onClick={() => {
+                          const url = job.sourceUrl || 
+                            (job.company.includes('Google') ? 'https://careers.google.com/jobs/results/?location=Singapore&q=intern' :
+                             job.company.includes('Microsoft') ? 'https://careers.microsoft.com/us/en/search-results?keywords=intern&location=singapore' :
+                             job.company.includes('Amazon') ? 'https://www.amazon.jobs/en/search?base_query=intern&loc_query=singapore' :
+                             job.company.includes('Grab') ? 'https://grab.careers/jobs/' :
+                             job.company.includes('Shopee') ? 'https://careers.shopee.sg/jobs/' :
+                             job.company.includes('DBS') ? 'https://www.dbs.com/careers/default.page' :
+                             job.company.includes('Remote') ? 'https://remote.co/remote-jobs/' :
+                             `https://www.indeed.com/viewjob?jk=${job.id}&q=${encodeURIComponent(job.title)}&l=singapore`)
+                          window.open(url, '_blank')
+                        }}
                         className="btn-outline"
                       >
                         View Original
