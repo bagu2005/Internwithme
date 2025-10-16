@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { User, Linkedin, Github, Globe, Upload, FileText, Plus, X, Shield, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { userPreferencesService, UserPreferences } from '../services/userPreferencesService';
 
 interface ProfileData {
   bio: string;

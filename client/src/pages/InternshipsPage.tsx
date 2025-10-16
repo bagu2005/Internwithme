@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, WifiOff, ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react'
 import { jobService } from '../services/supabase'
 import { realTimeService } from '../services/realTimeService'
+import { userPreferencesService } from '../services/userPreferencesService'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '../hooks/useAuth'
 import AdvancedFilters from '../components/AdvancedFilters'
@@ -311,7 +312,7 @@ export default function InternshipsPage() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-gray-900">
               Find Your Perfect Job
-            </h1>
+          </h1>
             <div className="flex items-center space-x-2">
               {isConnected ? (
                 <div className="flex items-center text-green-600">
@@ -404,7 +405,7 @@ export default function InternshipsPage() {
                 >
                   <Filter className="w-4 h-4 mr-1" />
                   Advanced Filters
-                </button>
+              </button>
             </div>
           </div>
         </div>
@@ -551,18 +552,22 @@ export default function InternshipsPage() {
                           Company
                         </button>
                         <button
-                          onClick={() => window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title)}&location=Singapore&f_TPR=r86400`, '_blank')}
+                          onClick={() => {
+                            const searchQuery = `${job.title} ${job.company} internship`
+                            const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(searchQuery)}&location=Singapore&f_TPR=r86400&f_JT=I&f_E=2`
+                            window.open(linkedinUrl, '_blank')
+                          }}
                           className="btn-outline text-xs px-2 py-1"
                         >
                           LinkedIn
                         </button>
                       </div>
-                      <Link
+                    <Link
                         to={`/jobs/${job.id}`}
-                        className="btn-outline"
-                      >
-                        View Details
-                      </Link>
+                      className="btn-outline"
+                    >
+                      View Details
+                    </Link>
                     </div>
                   </div>
                 </div>
