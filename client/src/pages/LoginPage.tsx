@@ -180,14 +180,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Google Sign-In - Temporarily disabled for testing */}
-        {/* <div className="mt-6">
+        {/* Google Sign-In */}
+        <div className="mt-6">
           <GoogleSignInButton
             onSuccess={handleGoogleSuccess}
             text="signin_with"
             className="w-full"
           />
-        </div> */}
+        </div>
 
       </div>
     </div>
