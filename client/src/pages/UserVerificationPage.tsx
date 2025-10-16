@@ -38,15 +38,14 @@ export default function UserVerificationPage() {
 
   const fetchVerificationStatus = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/verification/status', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      // Demo verification status
+      setVerificationStatus({
+        isVerified: false,
+        status: 'pending',
+        documents: [],
+        notes: '',
+        verifiedAt: undefined
       });
-      const data = await response.json();
-      if (response.ok) {
-        setVerificationStatus(data.data);
-      }
     } catch (error) {
       console.error('Failed to fetch verification status:', error);
     } finally {
@@ -154,27 +153,20 @@ export default function UserVerificationPage() {
         }))
       };
 
-      const response = await fetch('http://localhost:5001/api/verification/user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(verificationData)
+      // Demo verification submission
+      toast.success('Verification submitted successfully! (Demo mode - documents not saved)');
+      setVerificationStatus({
+        isVerified: false,
+        status: 'pending',
+        documents: [],
+        notes: 'Verification submitted and under review',
+        verifiedAt: undefined
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success(data.message);
-        await fetchVerificationStatus();
-        // Reset form
-        setFacePhoto(null);
-        setIdDocument(null);
-        setAdditionalDocs([]);
-      } else {
-        toast.error(data.error || 'Verification submission failed');
-      }
+      
+      // Reset form
+      setFacePhoto(null);
+      setIdDocument(null);
+      setAdditionalDocs([]);
     } catch (error) {
       console.error('Verification submission failed:', error);
       toast.error('Failed to submit verification documents');

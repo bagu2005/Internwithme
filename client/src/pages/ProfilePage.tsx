@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { User, Linkedin, Github, Globe, Upload, FileText, Plus, X, Shield, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface ProfileData {
   bio: string;
@@ -66,16 +67,14 @@ const ProfilePage: React.FC = () => {
 
   const loadVerificationStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/verification/status', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      // For now, set a default verification status since we don't have verification in Supabase yet
+      setVerificationStatus({
+        isVerified: false,
+        verificationType: 'email',
+        submittedAt: null,
+        reviewedAt: null,
+        status: 'pending'
       });
-      const data = await response.json();
-      if (response.ok) {
-        setVerificationStatus(data.data);
-      }
     } catch (error) {
       console.error('Failed to load verification status:', error);
     }
@@ -85,39 +84,36 @@ const ProfilePage: React.FC = () => {
     try {
       setProfileLoading(true);
       setProfileError(null);
-      const token = localStorage.getItem('token');
       
-      console.log('ProfilePage: Loading profile data, token exists:', !!token);
+      // Get current user from Supabase
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
       
-      if (!token) {
-        setProfileError('No authentication token found');
+      if (!currentUser) {
+        setProfileError('No authenticated user found');
         return;
       }
       
-      const response = await fetch('http://localhost:5001/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+      // For now, use default profile data since we don't have a profiles table yet
+      const defaultProfileData: ProfileData = {
+        bio: '',
+        skills: [],
+        education: [],
+        experience: [],
+        portfolioUrl: '',
+        linkedinUrl: '',
+        githubUrl: '',
+        websiteUrl: '',
+        interests: [],
+        resumeUrl: '',
+      };
+      
+      setProfileData(defaultProfileData);
+      
+      // Set form values
+      Object.keys(defaultProfileData).forEach(key => {
+        setValue(key as keyof ProfileData, defaultProfileData[key]);
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('ProfilePage: Profile data received:', data);
-        if (data.success && data.data) {
-          setProfileData(data.data);
-          // Set form values
-          Object.keys(data.data).forEach(key => {
-            setValue(key as keyof ProfileData, data.data[key]);
-          });
-        } else {
-          console.error('ProfilePage: Failed to load profile data:', data.error);
-          setProfileError(data.error || 'Failed to load profile data');
-        }
-      } else {
-        const errorData = await response.json();
-        console.error('ProfilePage: Profile load failed:', errorData);
-        setProfileError(errorData.error || 'Failed to load profile');
-      }
     } catch (error) {
       console.error('Error loading profile:', error);
       setProfileError('Network error while loading profile');
@@ -128,23 +124,10 @@ const ProfilePage: React.FC = () => {
 
   const onSubmit = async (data: ProfileData) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
-        loadProfileData();
-      } else {
-        toast.error('Failed to update profile');
-      }
+      // For now, just show success message since we don't have a profiles table yet
+      toast.success('Profile updated successfully! (Demo mode - data not saved)');
+      setIsEditing(false);
+      setProfileData(data);
     } catch (error) {
       toast.error('Error updating profile');
     }
@@ -155,26 +138,10 @@ const ProfilePage: React.FC = () => {
 
     setUploading(true);
     try {
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('resume', resumeFile);
-
-      const response = await fetch('http://localhost:5001/api/users/upload-resume', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.success('Resume uploaded successfully!');
-        setProfileData(prev => ({ ...prev, resumeUrl: data.data.resumeUrl }));
-        setResumeFile(null);
-      } else {
-        toast.error('Failed to upload resume');
-      }
+      // For now, just show success message since we don't have file upload in Supabase yet
+      toast.success('Resume uploaded successfully! (Demo mode - file not saved)');
+      setProfileData(prev => ({ ...prev, resumeUrl: 'demo-resume-url' }));
+      setResumeFile(null);
     } catch (error) {
       toast.error('Error uploading resume');
     } finally {

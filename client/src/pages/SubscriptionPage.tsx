@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Check, Crown, Star, Zap, CreditCard, Settings } from 'lucide-react';
-import { SubscriptionPlan, Subscription, FeatureUsage } from '../../../shared/types';
-import { stripeService } from '../services/stripeService';
 import toast from 'react-hot-toast';
 
 const SubscriptionPage: React.FC = () => {
   const { user } = useAuth();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
-  const [usage, setUsage] = useState<Record<string, FeatureUsage>>({});
+  const [plans, setPlans] = useState<any[]>([]);
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [usage, setUsage] = useState<any>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,22 +18,27 @@ const SubscriptionPage: React.FC = () => {
 
   const loadSubscriptionData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      // Load subscription plans
-      const plansResponse = await fetch('http://localhost:5001/api/subscriptions/plans');
-      const plansData = await plansResponse.json();
-      setPlans(plansData.data);
-
-      // Load current subscription
-      const subscriptionResponse = await fetch('http://localhost:5001/api/subscriptions/current', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+      // Demo subscription plans
+      const demoPlans = [
+        {
+          id: 'free',
+          name: 'Free',
+          price: 0,
+          features: ['Browse jobs', 'Basic filtering', 'Apply to jobs'],
+          limits: { applications: 5, searches: 10 }
         },
-      });
-      const subscriptionData = await subscriptionResponse.json();
-      setCurrentSubscription(subscriptionData.data.subscription);
-      setUsage(subscriptionData.data.usage);
+        {
+          id: 'premium',
+          name: 'Premium',
+          price: 9.99,
+          features: ['Unlimited applications', 'Advanced filtering', 'Priority support', 'Resume builder'],
+          limits: { applications: -1, searches: -1 }
+        }
+      ];
+      
+      setPlans(demoPlans);
+      setCurrentSubscription({ planId: 'free', status: 'active' });
+      setUsage({ applications: 2, searches: 5 });
     } catch (error) {
       console.error('Error loading subscription data:', error);
     } finally {
@@ -50,32 +53,22 @@ const SubscriptionPage: React.FC = () => {
         return;
       }
 
-      // Show loading state
-      toast.loading('Redirecting to payment...', { id: 'upgrade' });
-
-      // Create Stripe checkout session
-      await stripeService.createCheckoutSession(planId);
-      
-      // Note: User will be redirected to Stripe, so this won't execute
-      toast.success('Redirecting to payment...', { id: 'upgrade' });
+      // Demo upgrade - just show success message
+      toast.success('Subscription upgrade initiated! (Demo mode - no payment processed)');
+      setCurrentSubscription({ planId, status: 'active' });
     } catch (error: any) {
       console.error('Error upgrading subscription:', error);
-      toast.error(error.message || 'Error upgrading subscription. Please try again.', { id: 'upgrade' });
+      toast.error('Error upgrading subscription. Please try again.');
     }
   };
 
   const handleManageSubscription = async () => {
     try {
-      toast.loading('Opening subscription management...', { id: 'manage' });
-      await stripeService.createPortalSession();
-      toast.success('Opening subscription management...', { id: 'manage' });
+      // Demo subscription management
+      toast.success('Subscription management opened! (Demo mode)');
     } catch (error: any) {
       console.error('Error opening portal:', error);
-      if (error.message?.includes('No Stripe customer found')) {
-        toast.error('Please subscribe to a plan first to manage your subscription.', { id: 'manage' });
-      } else {
-        toast.error(error.message || 'Error opening subscription management.', { id: 'manage' });
-      }
+      toast.error('Error opening subscription management. Please try again.');
     }
   };
 
