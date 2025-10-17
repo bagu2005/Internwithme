@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { MapPin, Clock, DollarSign, Building, Calendar, Users, Send, ExternalLink, ArrowLeft } from 'lucide-react'
 import ApplicationForm from '../components/ApplicationForm'
-import { jobService } from '../services/supabase'
+import { jobApi } from '../services/api'
 import toast from 'react-hot-toast'
 
 export default function InternshipDetailPage() {
@@ -24,7 +24,8 @@ export default function InternshipDetailPage() {
   const fetchJobDetails = async () => {
     try {
       setLoading(true)
-      const jobs = await jobService.getJobs()
+      const response = await jobApi.getJobs()
+      const jobs = response.data || []
       const job = jobs.find(j => j.id === id)
       
       if (job) {

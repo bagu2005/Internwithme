@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, MapPin, Clock, DollarSign, Building, Filter, RefreshCw, Wifi, WifiOff, ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react'
-import { jobService } from '../services/supabase'
+import { jobApi } from '../services/api'
 import { realTimeService } from '../services/realTimeService'
 import { userPreferencesService } from '../services/userPreferencesService'
 import { toast } from 'react-hot-toast'
@@ -230,7 +230,7 @@ export default function InternshipsPage() {
         })
         
         // Get stats
-        jobService.getJobStats().then(setStats)
+        jobApi.getJobStats().then(response => setStats(response.data || {}))
         
       } catch (error) {
         console.error('Failed to initialize real-time service:', error)
@@ -242,12 +242,12 @@ export default function InternshipsPage() {
     const fetchDataFallback = async () => {
       try {
         setLoading(true)
-        const [jobs, jobStats] = await Promise.all([
-          jobService.getJobs(),
-          jobService.getJobStats()
+        const [jobsResponse, statsResponse] = await Promise.all([
+          jobApi.getJobs(),
+          jobApi.getJobStats()
         ])
-        setJobs(jobs || [])
-        setStats(jobStats)
+        setJobs(jobsResponse.data || [])
+        setStats(statsResponse.data || {})
       } catch (error) {
         console.error('Failed to fetch data:', error)
         setJobs([])
