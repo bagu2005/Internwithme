@@ -3,11 +3,11 @@ import { Filter, X, DollarSign, Building2, MapPin, Calendar, Users, Briefcase } 
 
 interface FilterState {
   salaryRange: [number, number]
-  companySize: string
-  workArrangement: string
-  applicationDeadline: string
-  experienceLevel: string
-  industry: string
+  companySize: string[]
+  workArrangement: string[]
+  applicationDeadline: string[]
+  experienceLevel: string[]
+  industry: string[]
   skills: string[]
   location: string
 }
@@ -28,29 +28,26 @@ const salaryRanges = [
 ]
 
 const companySizes = [
-  { label: 'Any', value: '' },
-  { label: 'Startup (1-50)', value: 'startup' },
-  { label: 'Small (51-200)', value: 'small' },
-  { label: 'Medium (201-1000)', value: 'medium' },
-  { label: 'Large (1000+)', value: 'large' }
+  { label: 'Startup (1-10)', value: 'startup' },
+  { label: 'Small (11-50)', value: 'small' },
+  { label: 'Medium (51-200)', value: 'medium' },
+  { label: 'Large (201-1000)', value: 'large' },
+  { label: 'Enterprise (1000+)', value: 'enterprise' }
 ]
 
 const workArrangements = [
-  { label: 'Any', value: '' },
   { label: 'Remote', value: 'remote' },
   { label: 'Hybrid', value: 'hybrid' },
   { label: 'On-site', value: 'onsite' }
 ]
 
 const experienceLevels = [
-  { label: 'Any', value: '' },
   { label: 'Entry Level', value: 'entry' },
   { label: 'Mid Level', value: 'mid' },
   { label: 'Senior Level', value: 'senior' }
 ]
 
 const industries = [
-  { label: 'Any', value: '' },
   { label: 'Technology', value: 'technology' },
   { label: 'Finance', value: 'finance' },
   { label: 'Healthcare', value: 'healthcare' },
@@ -59,7 +56,10 @@ const industries = [
   { label: 'Media', value: 'media' },
   { label: 'Consulting', value: 'consulting' },
   { label: 'E-commerce', value: 'ecommerce' },
-  { label: 'Gaming', value: 'gaming' }
+  { label: 'Gaming', value: 'gaming' },
+  { label: 'Logistics', value: 'logistics' },
+  { label: 'Real Estate', value: 'realestate' },
+  { label: 'Legal', value: 'legal' }
 ]
 
 const popularSkills = [
@@ -77,6 +77,14 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
     onFiltersChange(newFilters)
   }
 
+  const handleMultiSelectToggle = (key: keyof FilterState, value: string) => {
+    const currentValues = localFilters[key] as string[]
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter(v => v !== value)
+      : [...currentValues, value]
+    handleFilterChange(key, newValues)
+  }
+
   const handleSkillToggle = (skill: string) => {
     const newSkills = localFilters.skills.includes(skill)
       ? localFilters.skills.filter(s => s !== skill)
@@ -87,11 +95,11 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
   const clearAllFilters = () => {
     const clearedFilters: FilterState = {
       salaryRange: [0, 10000],
-      companySize: '',
-      workArrangement: '',
-      applicationDeadline: '',
-      experienceLevel: '',
-      industry: '',
+      companySize: [],
+      workArrangement: [],
+      applicationDeadline: [],
+      experienceLevel: [],
+      industry: [],
       skills: [],
       location: ''
     }
@@ -157,9 +165,9 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
               {companySizes.map((size) => (
                 <button
                   key={size.value}
-                  onClick={() => handleFilterChange('companySize', size.value)}
+                  onClick={() => handleMultiSelectToggle('companySize', size.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.companySize === size.value
+                    localFilters.companySize.includes(size.value)
                       ? 'bg-primary-100 text-primary-700 border border-primary-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -180,9 +188,9 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
               {workArrangements.map((arrangement) => (
                 <button
                   key={arrangement.value}
-                  onClick={() => handleFilterChange('workArrangement', arrangement.value)}
+                  onClick={() => handleMultiSelectToggle('workArrangement', arrangement.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.workArrangement === arrangement.value
+                    localFilters.workArrangement.includes(arrangement.value)
                       ? 'bg-primary-100 text-primary-700 border border-primary-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -203,9 +211,9 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
               {experienceLevels.map((level) => (
                 <button
                   key={level.value}
-                  onClick={() => handleFilterChange('experienceLevel', level.value)}
+                  onClick={() => handleMultiSelectToggle('experienceLevel', level.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.experienceLevel === level.value
+                    localFilters.experienceLevel.includes(level.value)
                       ? 'bg-primary-100 text-primary-700 border border-primary-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -226,9 +234,9 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
               {industries.map((industry) => (
                 <button
                   key={industry.value}
-                  onClick={() => handleFilterChange('industry', industry.value)}
+                  onClick={() => handleMultiSelectToggle('industry', industry.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.industry === industry.value
+                    localFilters.industry.includes(industry.value)
                       ? 'bg-primary-100 text-primary-700 border border-primary-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -270,16 +278,16 @@ export default function AdvancedFilters({ filters, onFiltersChange, onClose, isO
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {[
-                { label: 'Any', value: '' },
                 { label: 'This Week', value: 'week' },
                 { label: 'This Month', value: 'month' },
-                { label: 'Next 3 Months', value: 'quarter' }
+                { label: 'Next 3 Months', value: 'quarter' },
+                { label: 'No Deadline', value: 'none' }
               ].map((deadline) => (
                 <button
                   key={deadline.value}
-                  onClick={() => handleFilterChange('applicationDeadline', deadline.value)}
+                  onClick={() => handleMultiSelectToggle('applicationDeadline', deadline.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    localFilters.applicationDeadline === deadline.value
+                    localFilters.applicationDeadline.includes(deadline.value)
                       ? 'bg-primary-100 text-primary-700 border border-primary-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}

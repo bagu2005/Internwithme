@@ -30,11 +30,11 @@ interface Job {
 // Filter interface
 interface FilterState {
   salaryRange: [number, number]
-  companySize: string
-  workArrangement: string
-  applicationDeadline: string
-  experienceLevel: string
-  industry: string
+  companySize: string[]
+  workArrangement: string[]
+  applicationDeadline: string[]
+  experienceLevel: string[]
+  industry: string[]
   skills: string[]
   location: string
 }
@@ -70,11 +70,11 @@ export default function InternshipsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [filters, setFilters] = useState<FilterState>({
     salaryRange: [0, 10000],
-    companySize: '',
-    workArrangement: '',
-    applicationDeadline: '',
-    experienceLevel: '',
-    industry: '',
+    companySize: [],
+    workArrangement: [],
+    applicationDeadline: [],
+    experienceLevel: [],
+    industry: [],
     skills: [],
     location: ''
   })
@@ -183,11 +183,13 @@ export default function InternshipsPage() {
     return match ? parseInt(match[1].replace(/,/g, '')) : 0
   }
 
-  // Determine company size based on company name (simplified logic)
+  // Determine company size based on company name (realistic logic)
   const getCompanySize = (company: string): string => {
-    const largeCompanies = ['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'DBS', 'OCBC', 'UOB', 'Singtel', 'StarHub']
-    const mediumCompanies = ['Shopee', 'Grab', 'Sea Limited', 'Razer', 'Ninja Van', 'Carousell']
+    const enterpriseCompanies = ['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'DBS', 'OCBC', 'UOB', 'Singtel', 'StarHub', 'McKinsey', 'PwC', 'Deloitte', 'KPMG', 'EY']
+    const largeCompanies = ['Shopee', 'Grab', 'Sea Limited', 'Razer', 'Ninja Van', 'Carousell', '99.co', 'GovTech', 'A*STAR', 'Enterprise Singapore']
+    const mediumCompanies = ['Design Studio', 'Digital Agency', 'Tech Startup', 'Innovation Lab', 'Creative Agency']
     
+    if (enterpriseCompanies.some(name => company.includes(name))) return 'enterprise'
     if (largeCompanies.some(name => company.includes(name))) return 'large'
     if (mediumCompanies.some(name => company.includes(name))) return 'medium'
     if (company.includes('Singapore') || company.includes('GovTech') || company.includes('A*STAR')) return 'large'
@@ -276,17 +278,19 @@ export default function InternshipsPage() {
     const matchesSalary = jobSalary >= filters.salaryRange[0] && jobSalary <= filters.salaryRange[1]
     
     const companySize = getCompanySize(job.company)
-    const matchesCompanySize = !filters.companySize || companySize === filters.companySize
+    const matchesCompanySize = filters.companySize.length === 0 || filters.companySize.includes(companySize)
     
-    const matchesWorkArrangement = !filters.workArrangement || 
-      (filters.workArrangement === 'remote' && job.remote) ||
-      (filters.workArrangement === 'onsite' && !job.remote) ||
-      (filters.workArrangement === 'hybrid' && job.location.toLowerCase().includes('hybrid'))
+    const matchesWorkArrangement = filters.workArrangement.length === 0 || 
+      (filters.workArrangement.includes('remote') && job.remote) ||
+      (filters.workArrangement.includes('onsite') && !job.remote) ||
+      (filters.workArrangement.includes('hybrid') && job.location.toLowerCase().includes('hybrid'))
     
-    const matchesIndustry = !filters.industry || 
-      job.title.toLowerCase().includes(filters.industry) ||
-      job.description.toLowerCase().includes(filters.industry) ||
-      job.company.toLowerCase().includes(filters.industry)
+    const matchesIndustry = filters.industry.length === 0 || 
+      filters.industry.some(industry => 
+        job.title.toLowerCase().includes(industry) ||
+        job.description.toLowerCase().includes(industry) ||
+        job.company.toLowerCase().includes(industry)
+      )
     
     const matchesSkills = filters.skills.length === 0 || 
       filters.skills.some(skill => 
@@ -562,12 +566,12 @@ export default function InternshipsPage() {
                       >
                         View Original
                       </button>
-                      <Link
+                    <Link
                         to={`/jobs/${job.id}`}
                         className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center"
-                      >
-                        View Details
-                      </Link>
+                    >
+                      View Details
+                    </Link>
                     </div>
                   </div>
                 </div>
