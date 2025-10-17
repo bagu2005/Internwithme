@@ -111,16 +111,12 @@ export const jobService = {
 
 // Auth functions
 export const authService = {
-  // Sign in with Google (OAuth) - Force local redirect
+  // Sign in with Google (OAuth) - Using Supabase
   async signInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:5001/',
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        }
+        redirectTo: `${window.location.origin}/`
       }
     })
     
