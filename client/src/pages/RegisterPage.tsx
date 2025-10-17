@@ -54,27 +54,13 @@ export default function RegisterPage() {
     try {
       setIsLoading(true);
       console.log('Starting Google sign-in...');
-      toast.loading('Opening Google sign-in...', { id: 'google-signin' });
+      toast.loading('Redirecting to Google...', { id: 'google-signin' });
       
-      const result = await authService.signInWithGoogle();
-      console.log('Google sign-in result:', result);
-      
-      if (result.user) {
-        toast.success('Google sign-in successful!', { id: 'google-signin' });
-        navigate('/');
-      } else {
-        toast.error('Google sign-in failed', { id: 'google-signin' });
-      }
+      await authService.signInWithGoogle();
+      // The page will redirect, so we don't need to handle the response
     } catch (error: any) {
       console.error('Google sign-in error:', error);
-      if (error.message?.includes('popup blocked')) {
-        toast.error('Popup blocked. Please allow popups and try again.', { id: 'google-signin' });
-      } else if (error.message?.includes('cancelled')) {
-        toast.error('Sign-in was cancelled', { id: 'google-signin' });
-      } else {
-        toast.error(error.message || 'Google sign-in failed. Please try again.', { id: 'google-signin' });
-      }
-    } finally {
+      toast.error(error.message || 'Google sign-in failed. Please try again.', { id: 'google-signin' });
       setIsLoading(false);
     }
   };
