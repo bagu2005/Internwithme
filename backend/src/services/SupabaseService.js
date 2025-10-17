@@ -55,20 +55,26 @@ class SupabaseService {
 
       console.log(`Attempting to add ${jobs.length} jobs to database...`);
 
+      // Use upsert to handle duplicates gracefully
       const { data, error } = await this.supabase
         .from('job_postings')
-        .insert(jobs)
+        .upsert(jobs, { 
+          onConflict: 'source_url',
+          ignoreDuplicates: false 
+        })
         .select();
 
       if (error) {
         console.error('Error adding jobs:', error);
-        throw error;
+        // Don't throw error, just log it and continue
+        return [];
       }
 
-      console.log(`✅ Successfully added ${data.length} jobs to database`);
-      return data;
+      console.log(`✅ Successfully added ${data ? data.length : 0} jobs to database`);
+      return data || [];
     } catch (error) {
       console.error('Error in addJobs:', error);
+      // Don't throw error, just return empty array
       return [];
     }
   }

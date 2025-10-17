@@ -98,6 +98,47 @@ app.get('/api/jobs', async (req, res) => {
   }
 });
 
+app.get('/api/jobs/stats', async (req, res) => {
+  try {
+    const jobs = await supabaseService.getJobs();
+    const stats = {
+      totalJobs: jobs.length,
+      singaporeJobs: jobs.filter(job => job.location === 'Singapore').length,
+      remoteJobs: jobs.filter(job => job.remote === true).length,
+      techJobs: jobs.filter(job => 
+        job.title.toLowerCase().includes('software') || 
+        job.title.toLowerCase().includes('developer') ||
+        job.title.toLowerCase().includes('engineer') ||
+        job.title.toLowerCase().includes('data') ||
+        job.title.toLowerCase().includes('ai') ||
+        job.title.toLowerCase().includes('ml')
+      ).length,
+      averageSalary: jobs.filter(job => job.salary).length > 0 
+        ? Math.round(jobs.filter(job => job.salary).reduce((sum, job) => {
+            const salary = job.salary.replace(/[^\d]/g, '');
+            return sum + parseInt(salary);
+          }, 0) / jobs.filter(job => job.salary).length)
+        : 0
+    };
+    res.json({ success: true, data: stats });
+  } catch (error) {
+    console.error('Error fetching job stats:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch job stats' });
+  }
+});
+
+app.get('/api/jobs/recommendations', async (req, res) => {
+  try {
+    const jobs = await supabaseService.getJobs();
+    // Return top 10 jobs as recommendations
+    const recommendations = jobs.slice(0, 10);
+    res.json({ success: true, data: recommendations });
+  } catch (error) {
+    console.error('Error fetching job recommendations:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch job recommendations' });
+  }
+});
+
 app.post('/api/jobs/scrape', async (req, res) => {
   try {
     const { userPreferences } = req.body;
