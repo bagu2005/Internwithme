@@ -46,6 +46,8 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
+      console.log('Google sign-in button clicked!');
+      alert('Google sign-in button is working!'); // Temporary test
       setIsLoading(true);
       console.log('Starting Google sign-in...');
       toast.loading('Redirecting to Google...', { id: 'google-signin' });
@@ -188,9 +190,9 @@ export default function LoginPage() {
         {/* Google Sign-In */}
         <div className="mt-6">
           <button
-            onClick={() => toast.error('Google Sign-In disabled for local testing. Use email/password instead.')}
-            disabled={true}
-            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <LoadingSpinner size="sm" className="mr-2" />
