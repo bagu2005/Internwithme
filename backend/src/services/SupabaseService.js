@@ -55,26 +55,39 @@ class SupabaseService {
 
       console.log(`Attempting to add ${jobs.length} jobs to database...`);
 
-      // Use upsert to handle duplicates gracefully
-      const { data, error } = await this.supabase
-        .from('job_postings')
-        .upsert(jobs, { 
-          onConflict: 'source_url',
-          ignoreDuplicates: false 
-        })
-        .select();
+      // Remove duplicates within the batch first
+      const uniqueJobs = jobs.filter((job, index, self) => 
+        index === self.findIndex(j => j.source_url === job.source_url)
+      );
 
-      if (error) {
-        console.error('Error adding jobs:', error);
-        // Don't throw error, just log it and continue
-        return [];
+      console.log(`After deduplication: ${uniqueJobs.length} unique jobs`);
+
+      // Insert jobs one by one to avoid batch conflicts
+      const results = [];
+      for (const job of uniqueJobs) {
+        try {
+          const { data, error } = await this.supabase
+            .from('job_postings')
+            .upsert([job], { 
+              onConflict: 'source_url',
+              ignoreDuplicates: false 
+            })
+            .select();
+
+          if (error) {
+            console.error(`Error adding job ${job.title}:`, error);
+          } else if (data && data.length > 0) {
+            results.push(data[0]);
+          }
+        } catch (jobError) {
+          console.error(`Error adding individual job ${job.title}:`, jobError);
+        }
       }
 
-      console.log(`✅ Successfully added ${data ? data.length : 0} jobs to database`);
-      return data || [];
+      console.log(`✅ Successfully added ${results.length} jobs to database`);
+      return results;
     } catch (error) {
       console.error('Error in addJobs:', error);
-      // Don't throw error, just return empty array
       return [];
     }
   }

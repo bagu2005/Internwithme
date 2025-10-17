@@ -242,14 +242,22 @@ export default function InternshipsPage() {
     const fetchDataFallback = async () => {
       try {
         setLoading(true)
+        console.log('Fetching data from backend API...')
+        console.log('API Base URL:', import.meta.env.VITE_API_URL || 'http://localhost:5002/api')
+        
         const [jobsResponse, statsResponse] = await Promise.all([
           jobApi.getJobs(),
           jobApi.getJobStats()
         ])
+        
+        console.log('Jobs response:', jobsResponse)
+        console.log('Stats response:', statsResponse)
+        
         setJobs(jobsResponse.data || [])
         setStats(statsResponse.data || {})
       } catch (error) {
         console.error('Failed to fetch data:', error)
+        console.error('Error details:', error.response?.data || error.message)
         setJobs([])
       } finally {
         setLoading(false)
