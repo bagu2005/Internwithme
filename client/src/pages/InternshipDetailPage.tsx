@@ -89,27 +89,27 @@ export default function InternshipDetailPage() {
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
-                  {internship.duration} weeks
+                  {internship.duration || '12'} weeks
                 </div>
                 <div className="flex items-center">
                   <Calendar className="w-5 h-5 mr-2" />
-                  {new Date(internship.startDate).toLocaleDateString()} - {new Date(internship.endDate).toLocaleDateString()}
+                  {internship.startDate ? new Date(internship.startDate).toLocaleDateString() : 'Flexible'} - {internship.endDate ? new Date(internship.endDate).toLocaleDateString() : 'Flexible'}
                 </div>
-                {internship.paid && (
+                {internship.salary && (
                   <div className="flex items-center">
                     <DollarSign className="w-5 h-5 mr-2" />
-                    {internship.compensation?.amount} {internship.compensation?.currency}/{internship.compensation?.type}
+                    {internship.salary}
                   </div>
                 )}
               </div>
             </div>
             
             <div className="flex flex-col items-end space-y-2">
-              <span className="badge-primary text-lg px-4 py-2">{internship.category}</span>
+              <span className="badge-primary text-lg px-4 py-2">{internship.type || 'Internship'}</span>
               {internship.remote && (
                 <span className="badge-secondary">Remote</span>
               )}
-              {internship.paid ? (
+              {internship.salary ? (
                 <span className="badge-success">Paid</span>
               ) : (
                 <span className="badge-warning">Unpaid</span>
@@ -118,11 +118,17 @@ export default function InternshipDetailPage() {
           </div>
           
           <div className="flex flex-wrap gap-2 mb-6">
-            {internship.skills.map(skill => (
+            {internship.skills ? internship.skills.map(skill => (
               <span key={skill} className="badge-secondary">
                 {skill}
               </span>
-            ))}
+            )) : internship.requirements ? internship.requirements.slice(0, 5).map((req, index) => (
+              <span key={index} className="badge-secondary">
+                {req}
+              </span>
+            )) : (
+              <span className="badge-secondary">Skills to be discussed</span>
+            )}
           </div>
           
           <div className="flex flex-wrap gap-3">
@@ -200,43 +206,49 @@ export default function InternshipDetailPage() {
             </div>
 
             {/* Requirements */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Requirements</h2>
-              <ul className="space-y-2">
-                {internship.requirements.map((req, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary-600 mr-2">•</span>
-                    <span className="text-gray-600">{req}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {internship.requirements && internship.requirements.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Requirements</h2>
+                <ul className="space-y-2">
+                  {internship.requirements.map((req, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary-600 mr-2">•</span>
+                      <span className="text-gray-600">{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Responsibilities */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">What You'll Do</h2>
-              <ul className="space-y-2">
-                {internship.responsibilities.map((resp, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary-600 mr-2">•</span>
-                    <span className="text-gray-600">{resp}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {internship.responsibilities && internship.responsibilities.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">What You'll Do</h2>
+                <ul className="space-y-2">
+                  {internship.responsibilities.map((resp, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary-600 mr-2">•</span>
+                      <span className="text-gray-600">{resp}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Benefits */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Benefits</h2>
-              <ul className="space-y-2">
-                {internship.benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary-600 mr-2">•</span>
-                    <span className="text-gray-600">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {internship.benefits && internship.benefits.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Benefits</h2>
+                <ul className="space-y-2">
+                  {internship.benefits.map((benefit, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary-600 mr-2">•</span>
+                      <span className="text-gray-600">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -248,18 +260,24 @@ export default function InternshipDetailPage() {
                 <div>
                   <p className="text-sm text-gray-500">Application Deadline</p>
                   <p className="font-medium">
-                    {new Date(internship.applicationDeadline).toLocaleDateString()}
+                    {internship.applicationDeadline ? new Date(internship.applicationDeadline).toLocaleDateString() : 'Rolling basis'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Start Date</p>
                   <p className="font-medium">
-                    {new Date(internship.startDate).toLocaleDateString()}
+                    {internship.startDate ? new Date(internship.startDate).toLocaleDateString() : 'Flexible'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Duration</p>
-                  <p className="font-medium">{internship.duration} weeks</p>
+                  <p className="font-medium">{internship.duration || '12'} weeks</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Posted Date</p>
+                  <p className="font-medium">
+                    {internship.posted_date ? new Date(internship.posted_date).toLocaleDateString() : 'Recently'}
+                  </p>
                 </div>
               </div>
             </div>
