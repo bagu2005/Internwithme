@@ -111,21 +111,82 @@ export const jobService = {
 
 // Auth functions
 export const authService = {
-  // Sign in with Google (OAuth)
+  // Sign in with Google (OAuth) - Using popup to avoid redirect issues
   async signInWithGoogle() {
-    const redirectTo = `${window.location.origin}/`;
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { 
-        redirectTo,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      // Use a popup window for OAuth to avoid redirecting the main page
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          skipBrowserRedirect: true // This prevents the full page redirect
         }
+      })
+      
+      if (error) {
+        console.error('Google OAuth error:', error)
+        throw error
       }
-    })
-    if (error) throw error
-    return data
+      
+      // If we have a URL, open it in a popup
+      if (data.url) {
+        return new Promise((resolve, reject) => {
+          const popup = window.open(
+            data.url,
+            'google-signin',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+          )
+          
+          if (!popup) {
+            reject(new Error('Popup blocked. Please allow popups for this site.'))
+            return
+          }
+          
+          // Listen for the popup to close or receive a message
+          const checkClosed = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkClosed)
+              // Check if user is now signed in
+              supabase.auth.getSession().then(({ data: sessionData }) => {
+                if (sessionData.session) {
+                  resolve({ user: sessionData.session.user })
+                } else {
+                  reject(new Error('Sign-in was cancelled'))
+                }
+              })
+            }
+          }, 1000)
+          
+          // Also listen for messages from the popup
+          const messageListener = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return
+            
+            if (event.data.type === 'GOOGLE_SIGNIN_SUCCESS') {
+              clearInterval(checkClosed)
+              window.removeEventListener('message', messageListener)
+              popup.close()
+              resolve({ user: event.data.user })
+            } else if (event.data.type === 'GOOGLE_SIGNIN_ERROR') {
+              clearInterval(checkClosed)
+              window.removeEventListener('message', messageListener)
+              popup.close()
+              reject(new Error(event.data.error))
+            }
+          }
+          
+          window.addEventListener('message', messageListener)
+        })
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Google sign-in error:', error)
+      throw error
+    }
   },
 
   // Sign up
