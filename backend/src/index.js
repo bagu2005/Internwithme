@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cron = require('node-cron');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -188,6 +189,14 @@ cron.schedule('*/30 * * * * *', async () => {
   } catch (error) {
     console.error('❌ Scheduled scraping failed:', error);
   }
+});
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, '../../client/dist')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5001;
